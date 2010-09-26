@@ -1,0 +1,28 @@
+<div id="main-tabs">
+	<ul>
+		<li>
+			<a href="#summary">Summary</a>
+		</li>
+		<li>
+			<a href="#allocations">Allocations</a>
+		</li>
+		<li>
+			<a href="#transactions">Transactions</a>
+		</li>
+		<li>
+			<a href="#settings">Settings</a>
+		</li>
+	</ul>
+	<div id="summary" data-url="<?= $this->url(array('controller' => 'allocation', 'action' => 'summary'), null, true) ?>">
+		
+	</div>
+	<div id="allocations" data-url="<?= $this->url(array('controller' => 'allocation', 'action' => 'index'), null, true) ?>">
+		
+	</div>
+	<div id="transactions" data-url="<?= $this->url(array('controller' => 'transaction', 'action' => 'index'), null, true) ?>">
+		
+	</div>
+	<div id="settings" data-url="<?= $this->url(array('controller' => 'settings', 'action' => 'index'), null, true) ?>">
+		
+	</div>
+</div>

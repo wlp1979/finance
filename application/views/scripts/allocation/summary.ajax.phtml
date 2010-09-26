@@ -1,0 +1,46 @@
+<h2>Total</h2>
+<table id="summary-totals">
+    <thead>
+        <tr>
+            <th>Starting Balance</th>
+            <th>Total Income</th>
+            <th>Total Spent</th>
+			<th>Total Remaining</th>
+			<th>Currently Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="number"><?= '$' . number_format($this->totalStarting, 2)?></td>
+            <td class="number"><?= '$' . number_format($this->totalIncome, 2)?></td>
+            <td class="number"><?= '$' . number_format($this->totalSpent, 2)?></td>
+            <td class="number"><?= '$' . number_format($this->totalRemaining, 2)?></td>
+            <td class="number"><?= '$' . number_format($this->totalCurrent, 2)?></td>
+        </tr>
+    </tbody>
+</table>
+<h2>Expense Summaries</h2>
+<table id="expense-summaries">
+    <thead>
+        <tr>
+            <th>Expense</th>
+            <th>Starting Balance</th>
+            <th>Total Allocated</th>
+            <th>Total Spent</th>
+            <th>Total Remaining</th>
+            <th>Currently Available</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($this->expenses as $id => $expense) : ?>
+        <tr>
+            <td><?= $expense->name ?></td>
+            <td class="number"><?= '$' . number_format($this->expenseStart[$id], 2)?></td>
+            <td class="number"><?= '$' . number_format($this->expenseAllocated[$id], 2)?></td>
+            <td class="number"><?= '$' . number_format($this->expenseSpent[$id], 2)?></td>
+            <td class="number"><?= '$' . number_format($this->expenseRemaining[$id], 2)?></td>
+            <td class="number"><?= '$' . number_format($this->expenseCurrent[$id], 2)?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>

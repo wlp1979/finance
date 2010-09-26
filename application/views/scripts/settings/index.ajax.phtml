@@ -1,0 +1,77 @@
+<h3 class="ui-state-default ui-corner-top">Recurring Income</h3>
+<div class="ui-widget-content ui-corner-bottom">
+	<?= $this->button(array(
+		'id' => 'new-recurring', 
+		'text' => 'New', 
+		'ajax' => true,
+		'class' => 'right',
+		'url' => array('controller' => 'income', 'action' => 'edit-recurring'),
+		)); ?>
+	<div id="recurring-incomes">
+		<?php foreach($this->recurring as $income) : ?>
+		<?= $this->partial('partials/recurring-income.phtml', array('income' => $income)) ?>
+		<?php endforeach; ?>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<h3 class="ui-state-default ui-corner-top">Expense Categories</h3>
+<div class="ui-widget-content ui-corner-bottom">
+	<?= $this->button(array(
+		'id' => 'new-category', 
+		'text' => 'New', 
+		'ajax' => true,
+		'class' => 'right',
+		'url' => array('controller' => 'expense', 'action' => 'edit-category'),
+		)); ?>	
+	<div id="expense-categories">
+		<?= $this->partial('partials/category-list.phtml', array('categories' => $this->categories)) ?>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<script type="text/javascript">
+function wireIncomes(){
+	$('.edit-recurring').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-pencil'},
+		buttonText: false,
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: wireIncomes
+	});
+}
+
+function wireCategories(){
+	$('.edit-category').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-pencil'},
+		buttonText: false,
+		afterSubmit: wireCategories
+	});
+	
+	$('#category-list').sortable({
+		update: function(event, ui){
+			var categories = $(this).sortable('serialize');
+			$.post('/expense/order-categories/format/json', categories, function(data){
+				processJsonResponse(data);
+			}, 'json');
+		}
+	});
+}
+
+$(document).ready(function(){
+	wireIncomes();
+	wireCategories();
+	
+	$('#new-recurring').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: wireIncomes
+	});
+	
+	$('#new-category').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterSubmit: wireCategories
+	});
+});
+</script>

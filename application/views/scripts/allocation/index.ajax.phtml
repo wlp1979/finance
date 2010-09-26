@@ -1,0 +1,158 @@
+<?php
+$countIncomes = count($this->incomes);
+$totalCols = $countIncomes + 5;
+$incomeTotals = array();
+$currency = new Zend_Currency();
+?>
+<div id="allocations-table" style="height: 100%; width: 100%">
+<table>
+	<thead>
+		<tr>
+			<th class="first">&nbsp;</th>
+			<th>Income Date</th>
+			<th>&nbsp;</th>
+			<?php foreach($this->incomes as $income): ?>
+				<th class="income-date" data-income="<?= $income->id ?>"><?= $income->displayDate() ?></th>
+			<?php endforeach; ?>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th class="last">&nbsp;</th>
+		</tr>
+		<tr>
+			<th class="first empty">&nbsp;</th>
+			<th>Income Name</th>
+			<th>Previous Balance</th>
+			<?php foreach($this->incomes as $income): ?>
+				<th data-income="<?= $income->id ?>"><?= $income->name ?></th>
+			<?php endforeach; ?>
+			<th>Total Income</th>
+			<th>&nbsp;</th>
+			<th class="last">&nbsp;</th>
+		</tr>
+		<tr>
+			<th class="first empty">&nbsp;</th>
+			<th>Income Amount</th>
+			<th><?= $currency->setValue($this->totalStarting) ?></th>
+			<?php $totalIncome = $this->totalStarting; ?>
+			<?php foreach($this->incomes as $income): ?>
+				<?php $totalIncome += $income->amount; ?>
+				<th data-income="<?= $income->id ?>"><?= $income->displayCurrency() ?></th>
+			<?php endforeach; ?>
+			<th><?= $currency->setValue($totalIncome) ?></th>
+			<th>&nbsp;</th>
+			<th class="last">&nbsp;</th>
+		</tr>
+		<tr>
+			<th class="first">Expense</th>
+			<th>Average Amount</th>
+			<th>&nbsp;</th>
+			<?php foreach($this->incomes as $income): ?>
+				<th>&nbsp;</th>
+			<?php endforeach; ?>
+			<th>Allocated</th>
+			<th>Spent</th>
+			<th>Remaining</th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach($this->categories as $category) : ?>
+			<?php 
+			$categoryTotals = array(); 
+			$rowCount = 0;
+			?>
+			<tr class="category">
+				<td class="first"><?= $category->name ?></td>
+				<?php for($i=1; $i < $totalCols; $i++ ) : ?>
+				<td>&nbsp;</td>
+				<?php endfor; ?>
+				<td class="last">&nbsp;</td>
+			</tr>
+			<?php foreach($this->expenses as $expense) : ?>
+				<?php if($expense->category_id == $category->id) : ?>
+					<?php 
+					$spent = $this->spent[$expense->id]; 
+					@$categoryTotals['spent'] += $spent;
+					$balance = @$this->balances[$expense->id];
+					$allocated = 0;
+					?>
+					<tr>
+						<td class="first" data-expense="<?= $expense->id ?>"><?= $expense->name ?></td>
+						<td><?= $currency->setValue(0)//$expense->getAverage()) ?></td>
+						<td>
+							<?php if($balance instanceof App_Model_ExpenseTotal) : ?>
+								<?php
+								@$categoryTotals['balance'] += $balance->total_allocated - $balance->total_spent;
+								@$categoryTotals['allocated'] += $balance->total_allocated - $balance->total_spent;
+								@$incomeTotals['balance'] += $balance->total_allocated - $balance->total_spent;
+								$allocated += $balance->total_allocated - $balance->total_spent;
+								?>
+								<?= $currency->setValue($balance->total_allocated - $balance->total_spent) ?>
+							<?php else: ?>
+								&nbsp;
+							<?php endif; ?>
+						</td>
+						<?php foreach($this->incomes as $income) : ?>
+							<td class="allocation" data-income="<?= $income->id ?>" data-expense="<?= $expense->id ?>">
+							<?php if(isset($this->allocations[$expense->id][$income->id])) : ?>
+								<?php 
+								@$categoryTotals[$income->id] += $this->allocations[$expense->id][$income->id]->amount;
+								@$categoryTotals['allocated'] += $this->allocations[$expense->id][$income->id]->amount;
+								@$incomeTotals[$income->id] += $this->allocations[$expense->id][$income->id]->amount;
+								$allocated += $this->allocations[$expense->id][$income->id]->amount;
+								?>
+								<?= $this->allocations[$expense->id][$income->id]->displayCurrency() ?>
+							<?php else: ?>
+								&nbsp;
+							<?php endif; ?>
+							</td>
+						<?php endforeach; ?>
+						<td><?= $currency->setValue($allocated) ?></td>
+						<td><?= $currency->setValue($spent) ?></td>
+						<td><?= $currency->setValue($allocated - $spent) ?></td>
+					</tr>
+				<?php endif; ?>
+			<?php endforeach; ?>
+			<tr class="total">
+				<td class="first">Subtotal</td>
+				<td>&nbsp;</td>
+				<td><?= $currency->setValue(@$categoryTotals['balance']) ?></td>
+				<?php foreach($this->incomes as $income) : ?>
+					<td><?= $currency->setValue(@$categoryTotals[$income->id]) ?></td>
+				<?php endforeach; ?>
+				<td><?= $currency->setValue(@$categoryTotals['allocated']) ?></td>
+				<td><?= $currency->setValue(@$categoryTotals['spent']) ?></td>
+				<td><?= $currency->setValue(@$categoryTotals['allocated'] - @$categoryTotals['spent']) ?></td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+	<tfoot>
+		<tr class="total">
+			<th class="first">Total</th>
+			<th>&nbsp;</th>
+			<th><?= $currency->setValue(@$incomeTotals['balance']) ?></th>
+			<?php foreach($this->incomes as $income) : ?>
+				<th><?= $currency->setValue(@$incomeTotals[$income->id]) ?></th>
+			<?php endforeach; ?>
+			<th><?= $currency->setValue(@$incomeTotals['allocated']) ?></th>
+			<th><?= $currency->setValue(@$incomeTotals['spent']) ?></th>
+			<th><?= $currency->setValue(@$incomeTotals['allocated'] - @$incomeTotals['spent']) ?></th>
+		</tr>
+		<tr class="total">
+			<th class="first">Balance</th>
+			<th>&nbsp;</th>
+			<th><?= $currency->setValue($this->totalStarting - @$incomeTotals['balance']) ?></th>
+			<?php foreach($this->incomes as $income) : ?>
+				<th><?= $currency->setValue($income->amount - @$incomeTotals[$income->id]) ?></th>
+			<?php endforeach; ?>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+			<th>&nbsp;</th>
+		</tr>
+	</tfoot>
+</table>
+</div>
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#allocations-table').fixedHeaderTable({footer: true});
+});
+</script>

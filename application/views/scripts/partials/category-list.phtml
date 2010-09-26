@@ -1,0 +1,16 @@
+<?php if(!empty($this->categories)) : ?>
+<ul id="category-list">
+	<?php foreach($this->categories as $category) : ?>
+	<li id="category-<?= $category->id ?>" class="ui-state-default">
+		<?= $this->button(array(
+			'class' => 'edit-category right', 
+			'text' => 'Edit', 
+			'ajax' => true,
+			'url' => array('controller' => 'expense', 'action' => 'edit-category', 'category_id' => $category->id),
+			)); ?>	
+		<span class="handle ui-icon ui-icon-arrowthick-2-n-s"></span>
+		<?= $category->name ?>
+	</li>
+	<?php endforeach; ?>
+</ul>
+<?php endif; ?>
