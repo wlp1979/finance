@@ -61,6 +61,11 @@ class App_Model_ExpenseTotal extends Standard_Model
 			}
 		}
 		
+		if(empty($endDates))
+		{
+			$endDates[] = strtotime(strftime("%m/1/%y", $fromDate));
+		}
+		
 		$allocation = new App_Model_Allocation();
 		$transaction = new App_Model_Transaction();
 		$this->buffer();
@@ -69,7 +74,7 @@ class App_Model_ExpenseTotal extends Standard_Model
 			$this->id = null;
 			$this->expense_id = $expense->id;
 			$this->end_date = $date;
-			$this->total_allocations = $allocation->total($date, null, $expense);
+			$this->total_allocated = $allocation->total($date, null, $expense);
 			$this->total_spent = $transaction->total($date, null, $expense);
 			$this->save();
 		}

@@ -24,6 +24,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
      **/
     protected function _initSession()
     {
+		if(isset($_POST[session_name()]))
+		{
+			Zend_Session::setId($_POST[session_name()]);
+		}
         Zend_Session::start();
     }
     
@@ -44,6 +48,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 		$logger = new Zend_Log();
 		if(APPLICATION_ENV != 'production') {
 			$writer = new Zend_Log_Writer_Firebug();
+			set_error_handler('noticeLogger', E_NOTICE);
 		} else {
 			$writer = new Zend_Log_Writer_Mock();
 		}
@@ -69,8 +74,15 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 
 function debug($message, $label=null)
 {
+	$extras = array();
 	if ($label!=null) {
-		$message = array($label,$message);
+		$extras['firebugLabel'] = $label;
 	}
-	Zend_Registry::get('logger')->debug($message);
+	Zend_Registry::get('logger')->debug($message,$extras);
+}
+
+function noticeLogger($errno, $errstr, $errfile, $errline)
+{
+	$message = "$errstr on line $errline of $errfile";
+	debug($message, 'NOTICE');
 }

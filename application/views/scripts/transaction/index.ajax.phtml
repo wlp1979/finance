@@ -1,1 +1,201 @@
-transactions tab
+<div id="transaction-forms">
+	<div class="transaction-form ui-widget-content ui-corner-all">
+		<h3>New Transaction</h3>
+		<?= $this->form ?>
+		<div class="buttons">
+			<?= $this->button(array(
+				'id' => 'new-transaction', 
+				'text' => 'Save',
+				'class' => 'right', 
+				'url' => array('controller' => 'transaction', 'action' => 'edit'),
+				)); ?>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+	<div class="transaction-form ui-widget-content ui-corner-all">
+		<h3>Import Transactions</h3>
+		<input id="upload-input" name="transactions" type="file" />
+	</div>
+</div>
+<div id="transaction-table">
+	<table>
+		<thead>
+			<tr>
+				<th>Date</th>
+				<th>Check</th>
+				<th>Description</th>
+				<th>Amount</th>
+				<th>Expense</th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php $row = 0; ?>
+			<?php foreach($this->transactions as $transaction) : ?>
+			<?php $rowClass = ($row++ % 2 == 0) ? 'even' : 'odd'; ?>
+			<tr class="transaction <?= $rowClass ?>" data-transaction="<?= $transaction->id  ?>">
+				<td class="date"><?= $transaction->displayDate() ?></td>
+				<td class="check">
+				<?php if($transaction->check > 0) : ?>
+					<?= $transaction->check ?>
+				<?php else: ?>
+					&nbsp;
+				<?php endif; ?>
+				</td>
+				<td class="description"><?= $transaction->description ?></td>
+				<td class="amount"><?= $transaction->displayCurrency() ?></td>
+				<td class="expense"><?= $this->expenses[$transaction->expense_id]->name ?></td>
+			</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
+	<?= $this->paginator ?>
+</div>
+<div class="clearfix"></div>
+<script type="text/javascript">
+var editableUrl = '/transaction/edit-value/';
+
+function refreshTransactions(data)
+{
+	var tabData = {};
+	if(typeof(data.last_date) != 'undefined')
+	{
+		tabData.last_date = data.last_date;
+	}
+
+	if(typeof(data.last_expense) != 'undefined')
+	{
+		tabData.last_expense = data.last_expense;
+	}
+	
+	$('#main-tabs').mainTabs('loadTab', tabData);
+}
+
+function trimText(value, setting)
+{
+	var trimmed = $.trim(value);
+	if(trimmed == '&nbsp;')
+		trimmed = '';
+
+	return trimmed	;
+}
+
+function trimCurrency(value, setting)
+{
+	value = $.trim(value);
+	var reg = new RegExp('(\\$|\\,)');
+	return value.replace(reg, '');
+}
+
+$(document).ready(function(){
+	$('#transaction input.datepicker').datepicker();
+	
+	$('#new-transaction').button().click(function(){
+		var self = $(this);
+		var form = $('#transaction');
+		var url = self.attr('data-url');
+		$.post(url + '/format/json', form.serialize(), function(data){
+			if(data.form != undefined && data.form !== '')
+			{
+				$('#form-transaction').replaceWith(data.form);
+				$('input.datepicker', form).datepicker();
+			}
+			else
+			{
+				refreshTransactions(data);
+				processJsonResponse(data);
+			}
+		});
+	});
+
+	$('#upload-input').uploadify({
+		uploader: '/uploadify/uploadify.swf',
+		script: '/transaction/upload/',
+		cancelImg: '/uploadify/cancel.png',
+		auto: true,
+		fileDataName: 'file',
+		scriptData: {
+			<?= session_name() ?>: '<?= session_id() ?>'
+		},
+		onError : function(event, queueId, fileObj, errorObj){
+			console.log(errorObj);
+		},
+		onComplete: function(event, queueID, fileObj, response, data) { 
+			console.log(data);
+			console.log(response);
+		}
+	});
+
+	$('.transaction .expense').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: <?= json_encode($this->expenseOptions, JSON_FORCE_OBJECT) ?>,
+			type: 'select',
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'expense_id'
+			}
+		});
+	});
+
+	$('.transaction .check').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimText,
+			type: 'text',
+			width: 50,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'check'
+			}
+		});
+	});
+
+	$('.transaction .description').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimText,
+			type: 'text',
+			width: 500,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'description'
+			}
+		});
+	});
+
+	$('.transaction .amount').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimCurrency,
+			type: 'text',
+			width: 75,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'amount'
+			}
+		});
+	});
+	
+	$('.transaction .date').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			type: 'datepicker',
+			width: 75,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'date'
+			}
+		});
+	});
+});
+</script>

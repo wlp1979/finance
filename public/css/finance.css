@@ -1,10 +1,11 @@
 #wrapper {
 	margin: 1em 1em 0 1em;
+	font-size: 93%;
 }
 
 #footer {
 	margin-top: 1em;
-	font-size: 85%;
+	font-size: 91.4%;
 }
 
 .clearfix {
@@ -64,7 +65,7 @@
 }
 
 #wrapper button.ui-button, #wrapper input[type=submit] {
-	font-size: 85%;
+	font-size: 82.8%;
 }
 
 #wrapper button.right {
@@ -115,7 +116,7 @@
 }
 
 #allocations table th, #allocations table td {
-	padding: 0.5em 0.5em;
+	padding: 0.25em 0.25em;
 	text-align: right;
 }
 
@@ -160,4 +161,26 @@ fixedHeaderTable Styles
     padding: 0;
 	overflow-y:auto;
 	overflow-x:auto;
+}
+
+#transaction-forms {
+	float: left;
+	width: 185px;
+}
+
+#transaction-forms .transaction-form {
+	padding: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+#transaction-forms .transaction-form h3 {
+	margin-top: 0;
+}
+
+#transaction-table {
+	margin-left: 200px;
+}
+
+#transaction-table table {
+	width: 100%;
 }

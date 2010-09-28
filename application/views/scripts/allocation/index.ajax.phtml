@@ -8,35 +8,56 @@ $currency = new Zend_Currency();
 <table>
 	<thead>
 		<tr>
-			<th class="first">&nbsp;</th>
+			<th class="first">
+				<?= $this->button(array(
+					'id' => 'new-income', 
+					'text' => 'New Income', 
+					'ajax' => true,
+					'url' => array('controller' => 'income', 'action' => 'edit'),
+					)); ?>
+			</th>
 			<th>Income Date</th>
 			<th>&nbsp;</th>
 			<?php foreach($this->incomes as $income): ?>
-				<th class="income-date" data-income="<?= $income->id ?>"><?= $income->displayDate() ?></th>
+				<th class="income" data-income="<?= $income->id ?>"><?= $income->displayDate() ?></th>
 			<?php endforeach; ?>
 			<th>&nbsp;</th>
 			<th>&nbsp;</th>
 			<th class="last">&nbsp;</th>
 		</tr>
 		<tr>
-			<th class="first empty">&nbsp;</th>
+			<th class="first">
+				<?= $this->button(array(
+					'id' => 'new-expense', 
+					'text' => 'New Expense', 
+					'ajax' => true,
+					'url' => array('controller' => 'expense', 'action' => 'edit'),
+					)); ?>
+			</th>
 			<th>Income Name</th>
 			<th>Previous Balance</th>
 			<?php foreach($this->incomes as $income): ?>
-				<th data-income="<?= $income->id ?>"><?= $income->name ?></th>
+				<th class="income" data-income="<?= $income->id ?>"><?= $income->name ?></th>
 			<?php endforeach; ?>
 			<th>Total Income</th>
 			<th>&nbsp;</th>
 			<th class="last">&nbsp;</th>
 		</tr>
 		<tr>
-			<th class="first empty">&nbsp;</th>
+			<th class="first">
+				<?= $this->button(array(
+					'id' => 'choose-expense', 
+					'text' => 'Choose Expense', 
+					'ajax' => true,
+					'url' => array('controller' => 'expense', 'action' => 'chooser'),
+					)); ?>
+			</th>
 			<th>Income Amount</th>
 			<th><?= $currency->setValue($this->totalStarting) ?></th>
 			<?php $totalIncome = $this->totalStarting; ?>
 			<?php foreach($this->incomes as $income): ?>
 				<?php $totalIncome += $income->amount; ?>
-				<th data-income="<?= $income->id ?>"><?= $income->displayCurrency() ?></th>
+				<th class="income" data-income="<?= $income->id ?>"><?= $income->displayCurrency() ?></th>
 			<?php endforeach; ?>
 			<th><?= $currency->setValue($totalIncome) ?></th>
 			<th>&nbsp;</th>
@@ -70,13 +91,13 @@ $currency = new Zend_Currency();
 			<?php foreach($this->expenses as $expense) : ?>
 				<?php if($expense->category_id == $category->id) : ?>
 					<?php 
-					$spent = $this->spent[$expense->id]; 
+					$spent = @$this->spent[$expense->id]; 
 					@$categoryTotals['spent'] += $spent;
 					$balance = @$this->balances[$expense->id];
 					$allocated = 0;
 					?>
 					<tr>
-						<td class="first" data-expense="<?= $expense->id ?>"><?= $expense->name ?></td>
+						<td class="first expense" data-expense="<?= $expense->id ?>"><?= $expense->name ?></td>
 						<td><?= $currency->setValue(0)//$expense->getAverage()) ?></td>
 						<td>
 							<?php if($balance instanceof App_Model_ExpenseTotal) : ?>
@@ -152,7 +173,77 @@ $currency = new Zend_Currency();
 </table>
 </div>
 <script type="text/javascript">
+function refreshAllocations(data){
+	var tabData = {};
+	if(typeof(data.expense_id) != 'undefined')
+	{
+		tabData.expense_id = data.expense_id;
+	}
+	
+	$('#main-tabs').mainTabs('loadTab', tabData);
+}
+
 $(document).ready(function(){
+	$('#new-expense').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterSubmit: refreshAllocations
+	});
+
+	$('#new-income').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: refreshAllocations
+	});
+
+	$('#choose-expense').formDialogButton({
+		width: 300,
+		submitName: 'Choose',
+		buttonIcons: {primary: 'ui-icon-check'},
+		afterSubmit: refreshAllocations
+	});
+	
+	$('.expense').click(function(){
+		var expense = $(this);
+		var options = {
+			url: '/expense/edit/expense_id/' + expense.attr('data-expense'),
+			afterSubmit: refreshAllocations
+		};
+		expense.formDialog(options);
+		return false;
+	});
+
+	$('.income').click(function(){
+		var income = $(this);
+		var options = {
+			url: '/income/edit/income_id/' + income.attr('data-income'),
+			afterSubmit: refreshAllocations
+		};
+		income.formDialog(options);
+		return false;
+	});
+
+	$('.allocation').click(function(){
+		var allocation = $(this);
+		var expense_id = allocation.attr('data-expense');
+		var income_id = allocation.attr('data-income');
+		var options = {
+			url: '/allocation/edit/expense_id/' + expense_id + '/income_id/' + income_id,
+			afterSubmit: refreshAllocations,
+			extraButtons: {
+				Delete: function(event, ui) {
+					$.post('/allocation/delete/', {format: 'json', expense_id: expense_id, income_id: income_id}, function(data){
+						allocation.formDialog('destroy');
+						processJsonResponse(data, options.afterSubmit);
+					}, 'json');
+				}
+			}
+		};
+		allocation.formDialog(options);
+		return false;
+	});
+
 	$('#allocations-table').fixedHeaderTable({footer: true});
 });
 </script>

@@ -38,7 +38,7 @@ class App_Model_Allocation extends Standard_Model
 			}
 			else
 			{
-				$expense_id = $expense->id;
+				$expense_id = $expenses->id;
 			}
 		}
 		
@@ -144,4 +144,32 @@ class App_Model_Allocation extends Standard_Model
 		
 		return $allocations;
 	}
+	
+	public function find($income_id, $expense_id)
+	{
+		$table = $this->getDbTable();
+		$rows = $table->find($income_id, $expense_id);
+		if(count($rows) < 1)
+		{
+			return false;
+		}
+		
+		$row = $rows->current();
+		return $this->loadFromDb($row);
+	}
+
+	public function delete()
+	{
+		$table = $this->getDbTable();
+		$where = array(
+			'expense_id = ?' => $this->expense_id,
+			'income_id = ?' => $this->income_id,
+			);
+		
+		$table->delete($where);
+		$expense = $this->getExpense();
+		$income = $this->getIncome();
+		$expense->updateTotals($income->date);
+		return true;
+	}	
 }

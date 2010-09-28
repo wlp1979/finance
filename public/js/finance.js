@@ -66,35 +66,119 @@ $.widget( "ui.mainTabs", {
 		self.element.tabs({
 			show: function(){
 				self.loadTab();
+			},
+			cookie: {
+				path: '/',
+				expires: 1
 			}
 		});
 		
 		return self;
 	},
 	
-	loadTab: function(){
+	loadTab: function(data){
 		var self = this,
 			options = self.options;
 		var panel = $('.ui-tabs-panel:visible', self.element);
 		var url = panel.attr('data-url');
-		var data = {format: options.format};
+		
+		if(typeof(data) == 'object')
+		{
+			data.format = options.format;
+		}
+		else
+		{
+			data = {format: options.format};
+		}
+		
 		if(options.month != '' && options.year != '')
 		{
 			data.month = options.month;
 			data.year = options.year;
 		}
 		panel.load(url, data);
-		panel.height($(window).height() - 195);
+		panel.height($(window).height() - 185);
 	},
 	destroy: function() {
 		this.element.tabs('destroy');
 		$.Widget.prototype.destroy.apply(this, arguments);
-	}	
+	}
+});
+
+$.widget("ui.formDialog", {
+	options: {
+		url: '',
+		title: '',
+		width: 450,
+		extraButtons: {},
+		modal: true,
+		submitName: 'Save'
+	},
+	_create: function() {
+		var self = this,
+			options = self.options;
+		
+		self.loadForm();
+	},
+	loadForm: function(){
+		var self = this,
+			options = self.options;
+		var buttons = {};
+		buttons[options.submitName] = function(event, ui){
+			var form = $('form', self.box);
+			$.post(options.url + '/format/json', form.serialize(), function(data){
+				if(data.form != undefined && data.form !== '')
+				{
+					self.box.html(data.form);
+					self._trigger('afterLoad', event);
+				}
+				else
+				{
+					processJsonResponse(data, options.afterSubmit);
+					self.destroy();
+				}
+			}, 'json');
+		};
+		
+		for(i in options.extraButtons)
+		{
+			buttons[i] = options.extraButtons[i];
+		}
+		
+		buttons.Cancel = function() {
+			self.box.dialog('close');
+		};
+		
+		self.box = $('<div></div>');
+		$.get(options.url, {format: 'json'}, function(data){
+			self.box.html(data.form);
+			self.box.dialog({
+				bgiframe: true,
+				resizable: true,
+				width: options.width,
+				modal: options.modal,
+				title: options.title,
+				buttons: buttons,
+				close: function(event, ui) {
+					self.destroy();
+				},
+				open: function(event, ui) {
+					self._trigger('afterLoad', event)
+				}
+			});
+		}, 'json');
+	},
+	destroy: function() {
+		this.box.dialog('destroy');
+		this.box.remove();
+		$.Widget.prototype.destroy.apply(this, arguments);
+	}
 });
 
 $.widget( "ui.formDialogButton", {
 	options: {
 		title: '',
+		width: 550,
 		buttonIcons: {},
 		buttonText: true,
 		extraButtons: {},
@@ -111,75 +195,22 @@ $.widget( "ui.formDialogButton", {
 			text: options.buttonText
 		});
 		
+		options.url = self.element.attr('data-url');
 		self.element.bind('click.formDialogButton',function(event){
-			self.loadForm(event);
+			self.element.formDialog(options);
 			return false;
 		});
 	},
-	loadForm: function(event){
-		var self = this,
-			options = self.options;
-		var url = self.element.attr('data-url');
-		var buttons = {};
-		buttons[options.submitName] = function(event, ui){
-			var form = $('form', self.box);
-			$.post(url + '/format/json', form.serialize(), function(data){
-				if(data.form != undefined && data.form !== '')
-				{
-					self.box.html(data.form);
-					self._trigger('afterLoad', event);
-				}
-				else
-				{
-					self.box.dialog('close');
-					processJsonResponse(data, options.afterSubmit);
-				}
-			}, 'json');
-		};
-		
-		for(i in options.extraButtons)
-		{
-			buttons[i] = options.extraButtons[i];
-		}
-		
-		buttons.Cancel = function() {
-			self.box.dialog('close');
-		};
-		
-		self.box = $('<div></div>');
-		$.get(url, {format: 'json'}, function(data){
-			self.box.html(data.form);
-			self.box.dialog({
-				bgiframe: true,
-				resizable: true,
-				width: 550,
-				modal: options.modal,
-				title: options.title,
-				buttons: buttons,
-				close: function(event, ui) {
-					self.box.dialog('destroy');
-					self.box.remove();
-				},
-				open: function(event, ui) {
-					self._trigger('afterLoad', event)
-				}
-			});
-		}, 'json');
-	},
 	destroy: function() {
+		this.element.formDialog('destroy');
 		this.element.button('destroy');
 		this.element.unbind('.formDialogButton');
-		if(typeof(this.box) != 'undefined')
-		{
-			this.box.dialog('destroy');
-			this.box.remove();
-		}
 		$.Widget.prototype.destroy.apply(this, arguments);
 	}
 });
 
 $.datepicker.setDefaults({
-	dateFormat: 'm/d/y'	
+	dateFormat: 'mm/dd/y'	
 });
 
 $(document).ready(function(){

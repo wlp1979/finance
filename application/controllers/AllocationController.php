@@ -5,6 +5,8 @@ class AllocationController extends Standard_Controller
 	protected $_ajaxActions = array(
 		'index' => 'html',
 		'summary' => 'html',
+		'edit' => 'json',
+		'delete' => 'json',
 		);
 
 	public function indexAction()
@@ -31,6 +33,9 @@ class AllocationController extends Standard_Controller
 		$expense_ids = array_keys($allocations);
 		$balances = $expTotalModel->fetchLastWithBalance($this->_startDate);
 		$expense_ids += array_keys($balances);
+		if($this->_request->has('expense_id'))
+			$expense_ids[] = $this->_request->expense_id;
+		
 		$expenses = $expModel->findMany($expense_ids);
 		$categories = $catModel->fetchByUser($this->user);
 		$spent = $transModel->total($this->_endDate, $this->_startDate, $expenses);
@@ -85,7 +90,7 @@ class AllocationController extends Standard_Controller
 		$expenseAllocated = array();
 		foreach($expenses as $id => $expense)
 		{
-			$expenseStart[$id] = $expenseCurrent[$id] = $prevTotal[$id]['total_allocated'] - $prevTotal[$id]['total_spent'];
+			$expenseStart[$id] = $expenseCurrent[$id] = $prevTotals[$id]->total_allocated - $prevTotals[$id]->total_spent;
 			$expenseAllocated[$id] = 0;
 		}
 		
@@ -123,5 +128,81 @@ class AllocationController extends Standard_Controller
 		$this->view->expenseSpent = $expenseSpent;
 		$this->view->expenseRemaining = $expenseRemaining;
 		$this->view->expenseCurrent = $expenseCurrent;
+	}
+	
+	public function editAction()
+	{
+		$allocation = new App_Model_Allocation();
+		$expense = new App_Model_Expense();
+		$income = new App_Model_Income();
+		$form = new App_Form_Allocation();
+		
+		if(!$this->_request->has('expense_id') || !$this->_request->has('income_id'))
+		{
+			throw new Exception('required parameters missing');
+		}
+		
+		if(!$expense->find($this->_request->expense_id) || !$income->find($this->_request->income_id))
+		{
+			throw new Exception('unable to locate resource');
+		}
+		
+		$data = array(
+			'income' => $income->name . ' ('. $income->displayDate() . ')',
+			'expense' => $expense->name,
+			);
+		
+		if($allocation->find($income->id, $expense->id))
+		{
+			$data['amount'] = $allocation->amount;
+		}
+		
+		$form->populate($data);
+		
+		if($this->_request->isPost())
+		{
+			$params = $this->_request->getPost();
+			if($form->isValid($params))
+			{
+				$allocation->income_id = $income->id;
+				$allocation->expense_id = $expense->id;
+				$allocation->amount = $form->getValue('amount');
+				
+				$allocation->save();
+				
+				$message = $allocation->displayCurrency() . " allocated from {$income->name} (" . $income->displayDate() . ") to {$expense->name}";
+				$this->addNotification($message, 'Allocation Saved');
+				return;
+			}
+		}
+		
+		$this->setForm($form);
+	}
+	
+	public function deleteAction()
+	{
+		$allocation = new App_Model_Allocation();
+		$expense = new App_Model_Expense();
+		$income = new App_Model_Income();
+		$form = new App_Form_Allocation();
+		
+		if(!$this->_request->has('expense_id') || !$this->_request->has('income_id'))
+		{
+			$this->setError('missing require parameter');
+		}
+		
+		if(!$expense->find($this->_request->expense_id) || !$income->find($this->_request->income_id))
+		{
+			$this->setError('resource not found');
+		}
+		
+		if($allocation->find($income->id, $expense->id))
+		{
+			$allocation->delete();
+		}
+		else
+		{
+			$this->setError('resource not found');
+		}
 	}
 }

@@ -4,6 +4,7 @@ class IncomeController extends Standard_Controller
 {
 	protected $_ajaxActions = array(
 		'edit-recurring' => 'json',
+		'edit' => 'json',
 		);
 	
 	public function editRecurringAction()
@@ -51,6 +52,38 @@ class IncomeController extends Standard_Controller
 					$this->setReplace('#recurring-income-' . $income->id, $html);
 				}
 				$this->addNotification('The recurring income has been saved', 'Saved');
+				return;
+			}
+		}
+		
+		$this->setForm($form);
+	}
+	
+	public function editAction()
+	{
+		$income = new App_Model_Income();
+		$form = new App_Form_Income();
+		
+		if($this->_request->has('income_id') && $income->find($this->_request->income_id))
+		{
+			$data = $income->toArray();
+			$data['date'] = $income->displayDate();
+			$form->populate($data);
+		}
+		
+		if($this->_request->isPost())
+		{
+			$params = $this->_request->getPost();
+			if($form->isValid($params))
+			{
+				$income->user_id = $this->user->id;
+				$income->name = $form->getValue('name');
+				$income->amount = $form->getValue('amount');
+				$income->date = $form->getValue('date');
+				
+				$income->save();
+				
+				$this->addNotification('Income saved', 'Success');
 				return;
 			}
 		}
