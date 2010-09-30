@@ -67,4 +67,34 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 		$select->order('description');
 		return Zend_Paginator::factory($select);
 	}
+	
+	public function fetchExistingByOfxid($user_id, $ofxid)
+	{
+		$select = $this->select();
+		$select->where('user_id = ?', $user_id);
+		
+		if(is_array($ofxid))
+			$select->where('ofxid IN (?)', $ofxid);
+		else
+			$select->where('ofxid = ?', $ofxid);
+			
+		return $this->fetchAll($select);
+	}
+	
+	public function fetchPossibleMatch($user_id, $amount, $date, $check_num)
+	{
+		$select = $this->select();
+		$select->where('user_id = ?', $user_id);
+		$select->where('amount = ?', $amount);
+		$select->where('date >= ?', strtotime('-4 days', $date));
+		$select->where('date <= ?', strtotime('+4 days', $date));
+		
+		if(empty($check_num))
+			$check_num = 0;
+			
+		$select->where('check_num = ?', $check_num);
+		$select->where('ofxid is NULL OR ofxid = ""');
+		
+		return $this->fetchRow($select);
+	}
 }

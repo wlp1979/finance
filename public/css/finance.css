@@ -177,6 +177,10 @@ fixedHeaderTable Styles
 	margin-top: 0;
 }
 
+#transaction-forms .transaction-form .uploadifyQueueItem {
+	width: 145px;
+}
+
 #transaction-table {
 	margin-left: 200px;
 }
@@ -184,3 +188,10 @@ fixedHeaderTable Styles
 #transaction-table table {
 	width: 100%;
 }
+
+#form-import input.date,
+#form-import input.amount,
+#form-import input.check_num {
+	width: 6em;
+}
+

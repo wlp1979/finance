@@ -12,7 +12,7 @@ class App_Model_Transaction extends Standard_Model
 		'date' => 'timestamp',
 		'amount' => 'float',
 		'description' => 'string',
-		'check' => 'int',
+		'check_num' => 'int',
 		'ofxid' => 'string',
 		);
 		
@@ -98,6 +98,35 @@ class App_Model_Transaction extends Standard_Model
 		$this->_data['date'] = $value;
 	}
 	
+	public function fetchExistingByOfxid($ofxid)
+	{
+		$user = Zend_Auth::getInstance()->getIdentity();
+		$table = $this->getDbTable();
+		$rows = $table->fetchExistingByOfxid($user->id, $ofxid);
+		$transactions = array();
+		foreach($rows as $row)
+		{
+			$transaction = new self();
+			$transaction->loadFromDb($row);
+			$transactions[$id] = $transaction;
+		}
+		
+		return $transactions;
+	}
+	
+	public function fetchPossibleMatch()
+	{
+		$user = Zend_Auth::getInstance()->getIdentity();
+		$table = $this->getDbTable();
+		$row = $table->fetchPossibleMatch($user->id, $this->amount, $this->date, $this->check_num);
+		if(empty($row))
+			return false;
+		
+		$transaction = new self();
+		$transaction->loadFromDb($row);
+		return $transaction;	
+	}
+	
 	public function parseOfx($file)
 	{
 		$user = Zend_Auth::getInstance()->getIdentity();
@@ -107,20 +136,30 @@ class App_Model_Transaction extends Standard_Model
 		$transactions = array();
 		foreach($ofx->transactions() as $entry)
 		{
+			$ofxid = self::buildOfxid($bankId, $account, $entry->id);
 			$transaction = new self();
 			$transaction->user_id = $user->id;
 			$transaction->date = $entry->date;
-			$transaction->amount = $entry->amount;
-			$transaction->check = $entry->check;
+			$transaction->amount = $entry->amount * -1; //reverse the sign
+			$transaction->check_num = $entry->check;
 			$transaction->description = $entry->name . ' ' . $entry->memo;
-			$transaction->ofxid = self::buildOfxId($bankId, $account, $entry->id);
-			$transactions[] = $transaction;
+			$transaction->ofxid = $ofxid;
+			$transactions[$ofxid] = $transaction;
+		}
+		
+		if(!empty($transactions))
+		{
+			$existing = $this->fetchExistingByOfxid(array_keys($transactions));
+			foreach($existing as $transaction)
+			{
+				unset($transactions[$transaction->ofxid]);
+			}
 		}
 		
 		return $transactions;
 	}
 	
-	public static function buildOfxId($bankId, $account, $itemId)
+	public static function buildOfxid($bankId, $account, $itemId)
 	{
 		return md5("$bankId:$account:$itemId");
 	}

@@ -21,6 +21,7 @@ class Standard_Controller extends Zend_Controller_Action
 			$this->_context = $ajaxContext->getCurrentContext();
 		}
 		
+		$sessns = new Zend_Session_Namespace();
 		if($this->_request->has('month') && $this->_request->has('year'))
 		{
 			$this->setDatesByMonth($this->_request->month, $this->_request->year);
@@ -30,11 +31,19 @@ class Standard_Controller extends Zend_Controller_Action
 			$this->_startDate = $this->_request->start;
 			$this->_endDate = $this->_request->end;
 		}
+		elseif(isset($sessns->dates))
+		{
+			$this->_startDate = $sessns->dates->start;
+			$this->_endDate = $sessns->dates->end;
+		}
 		else
 		{
 			$date = new Zend_Date();
 			$this->setDatesByMonth($date->get(Zend_Date::MONTH), $date->get(Zend_Date::YEAR));
 		}
+		
+		$sessns->dates->start = $this->_startDate;
+		$sessns->dates->end = $this->_endDate;
 
 		$auth = Zend_Auth::getInstance();
 		if($auth->hasIdentity())

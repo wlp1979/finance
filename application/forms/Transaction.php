@@ -13,7 +13,7 @@ class App_Form_Transaction extends Standard_Form
 			'filters' => array('StringTrim'),
 			));
 
-		$this->addElement('text', 'check', array(
+		$this->addElement('text', 'check_num', array(
 			'label' => 'Check',
 			'filters' => array('StringTrim'),
 			));

@@ -216,12 +216,15 @@ $.datepicker.setDefaults({
 $(document).ready(function(){
 	var MainTabs = $('#main-tabs').mainTabs();
 	
-	$('#controls .date-selector').datepicker({
+	var dateSelector = $('#controls .date-selector');
+	var defaultDate = dateSelector.attr('data-date');
+	dateSelector.datepicker({
 		onChangeMonthYear: function(year, month, inst) {
 			MainTabs.mainTabs('option', 'month', month);
 			MainTabs.mainTabs('option', 'year', year);
 			MainTabs.mainTabs('loadTab');
-		}
+		},
+		defaultDate: defaultDate
 	});
 	
 	$('button.direct').each(function(){

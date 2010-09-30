@@ -6,6 +6,8 @@ class TransactionController extends Standard_Controller
 		'index' => 'html',
 		'edit' => 'json',
 		'edit-value' => 'html',
+		'import-form' => 'html',
+		'import' => 'json',
 		);
 
 	public function indexAction()
@@ -55,14 +57,13 @@ class TransactionController extends Standard_Controller
 		
 		$form->populate($data);
 		
+		$sessns = new Zend_Session_Namespace('import');
+		$this->view->import = (count($sessns->import) > 0);
 		$this->view->paginator = $paginator;
 		$this->view->transactions = $transactions;
 		$this->view->expenses = $expenses;
 		$this->view->form = $form;
 		$this->view->expenseOptions = $options;
-		
-		$sessns = new Zend_Session_Namespace('import');
-		debug($sessns->import);
 	}
 	
 	public function editAction()
@@ -95,7 +96,7 @@ class TransactionController extends Standard_Controller
 				$transaction->date = $form->getValue('date');
 				$transaction->amount = $form->getValue('amount');
 				$transaction->description = $form->getValue('description');
-				$transaction->check = $form->getValue('check');
+				$transaction->check_num = $form->getValue('check_num');
 				
 				$transaction->save();
 				
@@ -137,8 +138,8 @@ class TransactionController extends Standard_Controller
 					$this->view->value = $expense->name;
 					break;
 					
-					case 'check':
-					$this->view->value = ($transaction->check == '') ? '&nbsp;' : $transaction->check;
+					case 'check_num':
+					$this->view->value = ($transaction->check_num == '') ? '&nbsp;' : $transaction->check_num;
 					break;
 					
 					default:
@@ -164,12 +165,78 @@ class TransactionController extends Standard_Controller
 				if(!empty($file))
 				{
 					$transactions = $transaction->parseOfx($file);
-					$sessns = new Zend_Session_Namespace('import');
-					$sessns->import = $transactions;
-					var_dump($transactions);
-					echo "success";
+					if(!empty($transactions))
+					{
+						$sessns = new Zend_Session_Namespace('import');
+						$sessns->import = $transactions;
+						echo "import";
+						return;
+					}
 				}
+				echo "empty";
 			}
-		}	
+		}
+	}
+	
+	public function importFormAction()
+	{
+		$sessns = new Zend_Session_Namespace('import');
+		$import = $sessns->import;
+		$count = 0;
+		$this->view->matches = array();
+		$this->view->import = array();
+		foreach($import as $ofxid => $transaction)
+		{
+			if($count++ >= 10)
+				break;
+			$this->view->import[$ofxid] = $transaction;
+			$match = $transaction->fetchPossibleMatch();
+			if($match instanceof App_Model_Transaction)
+				$this->view->matches[$ofxid] = $match;
+		}
+
+		$expense = new App_Model_Expense();
+		
+		$this->view->options = array();
+		foreach($expense->fetchByUser($this->user) as $expense)
+		{
+			$this->view->options[$expense->id] = $expense->name;
+		}
+	}
+	
+	public function importAction()
+	{
+		$sessns = new Zend_Session_Namespace('import');
+
+		if($this->_request->isPost())
+		{
+			$params = $this->_request->getPost();
+			foreach($params['transactions'] as $ofxid => $data)
+			{
+				if(in_array($ofxid, $params['import']))
+				{
+					$transaction = $sessns->import[$ofxid];
+					$transaction->date = $data['date'];
+					$transaction->description = $data['description'];
+					$transaction->expense_id = $data['expense_id'];
+					
+					$transaction->save();
+				}
+				elseif(isset($params['match'][$ofxid]))
+				{
+					$match = new App_Model_Transaction();
+					if($match->find($params['match'][$ofxid]))
+					{
+						$match->date = $data['date'];
+						$match->description = $data['description'];
+						$match->expense_id = $data['expense_id'];
+						$match->ofxid = $ofxid;
+						$match->save();
+					}
+				}
+				
+				unset($sessns->import[$ofxid]);
+			}
+		}
 	}
 }

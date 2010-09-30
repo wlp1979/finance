@@ -1,0 +1,59 @@
+<div id="form-import" class="form">
+	<form method="post" action="" enctype="application/x-www-form-urlencoded" id="import">
+		<table>
+			<thead>
+				<tr>
+					<th>Action</th>
+					<th>Date</th>
+					<th>Check</th>
+					<th>Description</th>
+					<th>Amount</th>
+					<th>Expense</th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach($this->import as $ofxid => $import): ?>
+					<?php $match = isset($this->matches[$ofxid]) ? $this->matches[$ofxid] : false; ?>
+					<tr>
+						<td <?php if($match) echo 'rowspan="2"' ?>>
+							<input class="import" type="checkbox" name="import[]" value="<?= $ofxid ?>" /> <label>Import</label>
+							<?php if($match) : ?>
+							<br />
+							<input class="match" type="checkbox" name="match[<?= $ofxid ?>]" value="<?= $match->id ?>" /> 
+							<label>Match</label>
+							<?php endif; ?>
+						</td>
+						<td>
+							<input class="date" type="text" name="transactions[<?= $ofxid ?>][date]" value="<?= $import->displayDate() ?>">
+						</td>
+						<td>
+							<input class="check_num" type="text" name="transactions[<?= $ofxid ?>][check_num]" value="<?= $import->check_num ?>" disabled="disabled" />
+						</td>
+						<td>
+							<input class="description" type="text" name="transactions[<?= $ofxid ?>][description]" value="<?= $import->description ?>">
+						</td>
+						<td>
+							<input class="amount" type="text" name="transactions[<?= $ofxid ?>][amount]" value="<?= $import->displayCurrency() ?>" disabled="disabled" />
+						</td>
+						<td>
+							<select class="expense_id" name="transactions[<?= $ofxid ?>][expense_id]">
+								<?php foreach($this->options as $expense_id => $name) : ?>
+									<option label="<?= $name ?>" value="<?= $expense_id ?>"><?= $name ?></option>
+								<?php endforeach; ?>
+							</select>
+						</td>
+					</tr>
+					<?php if($match) : ?>
+					<tr>
+						<td><?= $match->displayDate() ?></td>
+						<td><?php if($match->check_num > 0) echo $match->check_num; ?>&nbsp;</td>
+						<td><?= $match->description ?></td>
+						<td><?= $match->displayCurrency() ?></td>
+						<td><?= $this->options[$match->expense_id] ?></td>
+					</tr>	
+					<?php endif; ?>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	</form>
+</div>

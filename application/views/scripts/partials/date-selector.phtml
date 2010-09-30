@@ -1,1 +1,5 @@
-<div class="date-selector control"></div>
+<?php
+$sessns = new Zend_Session_Namespace();
+$date = strftime('%m/%d/%y', $sessns->dates->start);
+?>
+<div class="date-selector control" data-date="<?= $date ?>"></div>

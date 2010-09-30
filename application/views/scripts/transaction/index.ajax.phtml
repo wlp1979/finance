@@ -34,9 +34,9 @@
 			<?php $rowClass = ($row++ % 2 == 0) ? 'even' : 'odd'; ?>
 			<tr class="transaction <?= $rowClass ?>" data-transaction="<?= $transaction->id  ?>">
 				<td class="date"><?= $transaction->displayDate() ?></td>
-				<td class="check">
-				<?php if($transaction->check > 0) : ?>
-					<?= $transaction->check ?>
+				<td class="check_num">
+				<?php if($transaction->check_num > 0) : ?>
+					<?= $transaction->check_num ?>
 				<?php else: ?>
 					&nbsp;
 				<?php endif; ?>
@@ -86,8 +86,41 @@ function trimCurrency(value, setting)
 	return value.replace(reg, '');
 }
 
+function importTransactions()
+{
+	var box = $('<div></div>');
+	box.load('/transaction/import-form', {format: 'html'}, function(){
+		box.dialog({
+			modal: true,
+			width: 850,
+			buttons: {
+				Continue: function(){
+					var form = $('#import');
+					$.post('/transaction/import/format/json', form.serialize(), function(data){
+						processJsonResponse(data);
+						box.dialog('destroy');
+						box.remove()
+						refreshTransactions(data);
+					}, 'json');
+				},
+				Cancel: function(){
+					$(this).dialog('destroy');
+					box.remove()
+				}
+			},
+			close: function() {
+				$(this).dialog('destroy');
+				box.remove()
+			}
+		});
+	});
+}
+
 $(document).ready(function(){
 	$('#transaction input.datepicker').datepicker();
+	<?php if($this->import) : ?>
+	importTransactions();
+	<?php endif; ?>
 	
 	$('#new-transaction').button().click(function(){
 		var self = $(this);
@@ -120,8 +153,10 @@ $(document).ready(function(){
 			console.log(errorObj);
 		},
 		onComplete: function(event, queueID, fileObj, response, data) { 
-			console.log(data);
-			console.log(response);
+			if(response == 'import')
+			{
+				importTransactions();
+			}
 		}
 	});
 
@@ -139,7 +174,7 @@ $(document).ready(function(){
 		});
 	});
 
-	$('.transaction .check').each(function(){
+	$('.transaction .check_num').each(function(){
 		var transaction = $(this).parent().attr('data-transaction');
 		$(this).editable(editableUrl, {
 			data: trimText,
@@ -149,7 +184,7 @@ $(document).ready(function(){
 			submitdata: {
 				format: 'html',
 				transaction_id: transaction,
-				column: 'check'
+				column: 'check_num'
 			}
 		});
 	});
