@@ -183,10 +183,15 @@ fixedHeaderTable Styles
 
 #transaction-table {
 	margin-left: 200px;
+	overflow-y: auto;
 }
 
 #transaction-table table {
 	width: 100%;
+}
+
+#transaction-table table th, #transaction-table table td {
+	padding: 0.25em 0.25em;
 }
 
 #form-import input.date,

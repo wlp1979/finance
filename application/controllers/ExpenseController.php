@@ -7,6 +7,7 @@ class ExpenseController extends Standard_Controller
 		'order-categories' => 'json',
 		'edit' => 'json',
 		'chooser' => 'json',
+		'recalc-totals' => 'json',
 		);
 
 	public function editCategoryAction()
@@ -113,5 +114,14 @@ class ExpenseController extends Standard_Controller
 		}
 		
 		$this->setForm($form);
+	}
+	
+	public function recalcTotalsAction()
+	{
+		$expenses = new App_Model_Expense();
+		foreach($expenses->fetchByUser($this->user) as $expense)
+		{
+			$expense->updateTotals($this->user->created);
+		}
 	}
 }

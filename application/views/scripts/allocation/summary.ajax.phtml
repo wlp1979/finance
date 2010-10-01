@@ -1,3 +1,4 @@
+<?php $currency = new Zend_Currency(); ?>
 <h2>Total</h2>
 <table id="summary-totals">
     <thead>
@@ -11,11 +12,11 @@
     </thead>
     <tbody>
         <tr>
-            <td class="number"><?= '$' . number_format($this->totalStarting, 2)?></td>
-            <td class="number"><?= '$' . number_format($this->totalIncome, 2)?></td>
-            <td class="number"><?= '$' . number_format($this->totalSpent, 2)?></td>
-            <td class="number"><?= '$' . number_format($this->totalRemaining, 2)?></td>
-            <td class="number"><?= '$' . number_format($this->totalCurrent, 2)?></td>
+            <td class="number"><?= $currency->setValue($this->totalStarting)?></td>
+            <td class="number"><?= $currency->setValue($this->totalIncome)?></td>
+            <td class="number"><?= $currency->setValue($this->totalSpent)?></td>
+            <td class="number"><?= $currency->setValue($this->totalRemaining)?></td>
+            <td class="number"><?= $currency->setValue($this->totalCurrent)?></td>
         </tr>
     </tbody>
 </table>
@@ -35,11 +36,11 @@
         <?php foreach($this->expenses as $id => $expense) : ?>
         <tr>
             <td><?= $expense->name ?></td>
-            <td class="number"><?= '$' . number_format($this->expenseStart[$id], 2)?></td>
-            <td class="number"><?= '$' . number_format($this->expenseAllocated[$id], 2)?></td>
-            <td class="number"><?= '$' . number_format($this->expenseSpent[$id], 2)?></td>
-            <td class="number"><?= '$' . number_format($this->expenseRemaining[$id], 2)?></td>
-            <td class="number"><?= '$' . number_format($this->expenseCurrent[$id], 2)?></td>
+            <td class="number"><?= $currency->setValue($this->expenseStart[$id])?></td>
+            <td class="number"><?= $currency->setValue($this->expenseAllocated[$id])?></td>
+            <td class="number"><?= $currency->setValue($this->expenseSpent[$id])?></td>
+            <td class="number"><?= $currency->setValue($this->expenseRemaining[$id])?></td>
+            <td class="number"><?= $currency->setValue($this->expenseCurrent[$id])?></td>
         </tr>
         <?php endforeach; ?>
     </tbody>

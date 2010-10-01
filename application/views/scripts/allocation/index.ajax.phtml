@@ -2,6 +2,10 @@
 $countIncomes = count($this->incomes);
 $totalCols = $countIncomes + 5;
 $incomeTotals = array();
+$allTotals = array(
+	'allocated' => 0,
+	'spent' => 0,
+	);
 $currency = new Zend_Currency();
 ?>
 <div id="allocations-table" style="height: 100%; width: 100%">
@@ -144,6 +148,10 @@ $currency = new Zend_Currency();
 				<td><?= $currency->setValue(@$categoryTotals['spent']) ?></td>
 				<td><?= $currency->setValue(@$categoryTotals['allocated'] - @$categoryTotals['spent']) ?></td>
 			</tr>
+			<?php
+			$allTotals['allocated'] += $categoryTotals['allocated'];
+			$allTotals['spent'] += $categoryTotals['spent'];
+			?>
 		<?php endforeach; ?>
 	</tbody>
 	<tfoot>
@@ -154,9 +162,9 @@ $currency = new Zend_Currency();
 			<?php foreach($this->incomes as $income) : ?>
 				<th><?= $currency->setValue(@$incomeTotals[$income->id]) ?></th>
 			<?php endforeach; ?>
-			<th><?= $currency->setValue(@$incomeTotals['allocated']) ?></th>
-			<th><?= $currency->setValue(@$incomeTotals['spent']) ?></th>
-			<th><?= $currency->setValue(@$incomeTotals['allocated'] - @$incomeTotals['spent']) ?></th>
+			<th><?= $currency->setValue($allTotals['allocated']) ?></th>
+			<th><?= $currency->setValue($allTotals['spent']) ?></th>
+			<th><?= $currency->setValue($allTotals['allocated'] - $allTotals['spent']) ?></th>
 		</tr>
 		<tr class="total">
 			<th class="first">Balance</th>

@@ -15,7 +15,7 @@ class TransactionController extends Standard_Controller
 	{
 		$transaction = new App_Model_Transaction();
 		$paginator = $transaction->fetchRange($this->user, $this->_startDate, $this->_endDate);
-        $paginator->setItemCountPerPage(25);
+        $paginator->setItemCountPerPage(30);
         $paginator->setCurrentPageNumber($this->_request->getParam('page', 1));
         Zend_Paginator::setDefaultScrollingStyle('Sliding');
         Zend_View_Helper_PaginationControl::setDefaultViewPartial(

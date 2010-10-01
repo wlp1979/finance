@@ -78,7 +78,7 @@ class AllocationController extends Standard_Controller
 			}
 		}
 		
-		$totalSpent = $transModel->total($this->_startDate, $this->_endDate);
+		$totalSpent = $transModel->total($this->_endDate, $this->_startDate);
 		
 		$expenseModel = new App_Model_Expense();
 		$allocModel = new App_Model_Allocation();
@@ -119,8 +119,8 @@ class AllocationController extends Standard_Controller
 		$this->view->totalStarting = $totalStarting;
 		$this->view->totalIncome = $totalIncome;
 		$this->view->totalSpent = $totalSpent;
-		$this->view->totalRemaing = $totalStarting + $totalIncome - $totalSpent;
-		$this->view->totalCurrent = $totalCurrent;
+		$this->view->totalRemaining = $totalStarting + $totalIncome - $totalSpent;
+		$this->view->totalCurrent = $totalCurrent - $totalSpent;
 		
 		$this->view->expenses = $expenses;
 		$this->view->expenseStart = $expenseStart;

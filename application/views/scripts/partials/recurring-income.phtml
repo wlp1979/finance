@@ -6,7 +6,7 @@
 		'url' => array('controller' => 'income', 'action' => 'edit-recurring', 'recurring_income_id' => $this->income->id),
 		)); ?>
 	<div class="name"><?= $this->income->name ?></div>
-	<div class="amount">$<?= number_format($this->income->amount, 2) ?></div>
+	<div class="amount"><?= $this->income->displayCurrency() ?></div>
 	<div class="recurrance"><?= $this->income->displayRecurType() ?></div>
 	<div class="start-date"><span class="label">Start:</span> <?= $this->income->displayDate('start_date') ?></div>
 	<?php if($this->income->end_date > 0) : ?>
