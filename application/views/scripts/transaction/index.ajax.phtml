@@ -267,7 +267,7 @@ $(document).ready(function(){
 	$('.paginationControl a').click(function(){
 		var url = $(this).attr('href');
 		var parts = url.split('/');
-		refreshTransactions({page: parts[3]});
+		refreshTransactions({page: parts[4]});
 		return false;
 	});
 });
