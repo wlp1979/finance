@@ -75,6 +75,11 @@ function refreshTransactions(data)
 		tabData.last_expense = data.last_expense;
 	}
 	
+	if(typeof(data.page) != 'undefined')
+	{
+		tabData.page = data.page
+	}
+	
 	$('#main-tabs').mainTabs('loadTab', tabData);
 }
 
@@ -257,6 +262,13 @@ $(document).ready(function(){
 				processJsonResponse(data);
 			});
 		});
-	})
+	});
+	
+	$('.paginationControl a').click(function(){
+		var url = $(this).attr('href');
+		var parts = url.split('/');
+		refreshTransactions({page: parts[3]});
+		return false;
+	});
 });
 </script>
