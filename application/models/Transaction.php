@@ -163,4 +163,18 @@ class App_Model_Transaction extends Standard_Model
 	{
 		return md5("$bankId:$account:$itemId");
 	}
+
+	public function delete()
+	{
+		$date = $this->date;
+		$expense = $this->getExpense();
+		
+		$table = $this->getDbTable();
+		$where = $table->getAdapter()->quoteInto('id = ?', $this->id);
+		$table->delete($where);
+		
+		$expense->updateTotals($date);
+		return true;
+	}
+	
 }

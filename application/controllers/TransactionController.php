@@ -8,6 +8,7 @@ class TransactionController extends Standard_Controller
 		'edit-value' => 'html',
 		'import-form' => 'html',
 		'import' => 'json',
+		'delete' => 'json',
 		);
 
 	public function indexAction()
@@ -238,5 +239,17 @@ class TransactionController extends Standard_Controller
 				unset($sessns->import[$ofxid]);
 			}
 		}
+	}
+	
+	public function deleteAction()
+	{
+		$transaction = new App_Model_Transaction();
+		if($transaction->find($this->_request->transaction_id))
+		{
+			$transaction->delete();
+			$this->addNotification('The transaction has been deleted', 'Success');
+		}
+		
+		return;
 	}
 }

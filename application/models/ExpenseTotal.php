@@ -63,7 +63,7 @@ class App_Model_ExpenseTotal extends Standard_Model
 		
 		if(empty($endDates))
 		{
-			$endDates[] = strtotime(strftime("%m/1/%y", $fromDate));
+			$endDates[] = strtotime('+1 month', strtotime(strftime("%m/1/%y", $fromDate)));
 		}
 		
 		$allocation = new App_Model_Allocation();

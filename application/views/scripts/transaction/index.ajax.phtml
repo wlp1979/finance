@@ -26,6 +26,7 @@
 				<th>Description</th>
 				<th>Amount</th>
 				<th>Expense</th>
+				<th>Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -44,6 +45,13 @@
 				<td class="description"><?= $transaction->description ?></td>
 				<td class="amount"><?= $transaction->displayCurrency() ?></td>
 				<td class="expense"><?= $this->expenses[$transaction->expense_id]->name ?></td>
+				<td>
+					<?= $this->button(array(
+						'text' => 'Delete',
+						'class' => 'delete', 
+						'url' => array('controller' => 'transaction', 'action' => 'delete', 'transaction_id' => $transaction->id),
+						)); ?>
+				</td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>
@@ -232,5 +240,23 @@ $(document).ready(function(){
 			}
 		});
 	});
+	
+	$('.transaction .delete').each(function(){
+		var button = $(this);
+		var url = button.attr('data-url');
+		button.button({
+			icons: {
+				primary: 'ui-icon-trash'
+			},
+			text: false
+		});
+		
+		button.click(function(){
+			$.post(url, {format: 'json'}, function(data){
+				refreshTransactions(data);
+				processJsonResponse(data);
+			});
+		});
+	})
 });
 </script>
