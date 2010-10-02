@@ -165,7 +165,7 @@ fixedHeaderTable Styles
 
 #transaction-forms {
 	float: left;
-	width: 185px;
+	width: 200px;
 }
 
 #transaction-forms .transaction-form {
@@ -182,7 +182,7 @@ fixedHeaderTable Styles
 }
 
 #transaction-table {
-	margin-left: 200px;
+	margin-left: 215px;
 	overflow-y: auto;
 }
 

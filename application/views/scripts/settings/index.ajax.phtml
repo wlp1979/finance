@@ -29,49 +29,7 @@
 	<div class="clearfix"></div>
 </div>
 <script type="text/javascript">
-function wireIncomes(){
-	$('.edit-recurring').formDialogButton({
-		buttonIcons: {primary: 'ui-icon-pencil'},
-		buttonText: false,
-		afterLoad: function(){
-			$('input.datepicker', self.box).datepicker();
-		},
-		afterSubmit: wireIncomes
-	});
-}
-
-function wireCategories(){
-	$('.edit-category').formDialogButton({
-		buttonIcons: {primary: 'ui-icon-pencil'},
-		buttonText: false,
-		afterSubmit: wireCategories
-	});
-	
-	$('#category-list').sortable({
-		update: function(event, ui){
-			var categories = $(this).sortable('serialize');
-			$.post('/expense/order-categories/format/json', categories, function(data){
-				processJsonResponse(data);
-			}, 'json');
-		}
-	});
-}
-
 $(document).ready(function(){
-	wireIncomes();
-	wireCategories();
-	
-	$('#new-recurring').formDialogButton({
-		buttonIcons: {primary: 'ui-icon-plusthick'},
-		afterLoad: function(){
-			$('input.datepicker', self.box).datepicker();
-		},
-		afterSubmit: wireIncomes
-	});
-	
-	$('#new-category').formDialogButton({
-		buttonIcons: {primary: 'ui-icon-plusthick'},
-		afterSubmit: wireCategories
-	});
+	wireSettings();
 });
 </script>

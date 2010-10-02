@@ -36,9 +36,16 @@ class AllocationController extends Standard_Controller
 		if($this->_request->has('expense_id'))
 			$expense_ids[] = $this->_request->expense_id;
 		
+		$spent = $transModel->total($this->_endDate, $this->_startDate, true);
+		
+		foreach($spent as $expense_id => $total)
+		{
+			$expense_ids[] = $expense_id;
+		}
+		$expense_ids = array_unique($expense_ids);
+		
 		$expenses = $expModel->findMany($expense_ids);
 		$categories = $catModel->fetchByUser($this->user);
-		$spent = $transModel->total($this->_endDate, $this->_startDate, $expenses);
 		
 		$this->view->incomes = $incomes;
 		$this->view->totalStarting = $totalStarting;
@@ -47,6 +54,7 @@ class AllocationController extends Standard_Controller
 		$this->view->allocations = $allocations;
 		$this->view->balances = $balances;
 		$this->view->spent = $spent;
+		$this->view->scroll = $this->_request->getParam('scroll', 0);
 	}
 	
 	public function summaryAction()

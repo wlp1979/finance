@@ -213,6 +213,344 @@ $.datepicker.setDefaults({
 	dateFormat: 'mm/dd/y'	
 });
 
+
+function refreshAllocations(data){
+	var tabData = {};
+	if(typeof(data.expense_id) != 'undefined')
+	{
+		tabData.expense_id = data.expense_id;
+	}
+
+	tabData.scroll = $('.fht_table_body').scrollTop();	
+	$('#main-tabs').mainTabs('loadTab', tabData);
+}
+
+function wireAllocations(scroll)
+{
+	$('#new-expense').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterSubmit: refreshAllocations
+	});
+
+	$('#new-income').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: refreshAllocations
+	});
+
+	$('#choose-expense').formDialogButton({
+		width: 300,
+		submitName: 'Choose',
+		buttonIcons: {primary: 'ui-icon-check'},
+		afterSubmit: refreshAllocations
+	});
+	
+	$('.expense').click(function(){
+		var expense = $(this);
+		var options = {
+			url: '/expense/edit/expense_id/' + expense.attr('data-expense'),
+			afterSubmit: refreshAllocations
+		};
+		expense.formDialog(options);
+		return false;
+	});
+
+	$('.income').click(function(){
+		var income = $(this);
+		var options = {
+			url: '/income/edit/income_id/' + income.attr('data-income'),
+			afterSubmit: refreshAllocations
+		};
+		income.formDialog(options);
+		return false;
+	});
+
+	$('.allocation').click(function(){
+		var allocation = $(this);
+		var expense_id = allocation.attr('data-expense');
+		var income_id = allocation.attr('data-income');
+		var options = {
+			url: '/allocation/edit/expense_id/' + expense_id + '/income_id/' + income_id,
+			afterSubmit: refreshAllocations,
+			extraButtons: {
+				Delete: function(event, ui) {
+					$.post('/allocation/delete/', {format: 'json', expense_id: expense_id, income_id: income_id}, function(data){
+						allocation.formDialog('destroy');
+						processJsonResponse(data, options.afterSubmit);
+					}, 'json');
+				}
+			}
+		};
+		allocation.formDialog(options);
+		return false;
+	});
+
+	$('#allocations-table').fixedHeaderTable({footer: true});
+	$('.fht_table_body').scrollTop(scroll);
+}
+
+function refreshTransactions(data)
+{
+	var tabData = {};
+	if(typeof(data.last_date) != 'undefined')
+	{
+		tabData.last_date = data.last_date;
+	}
+
+	if(typeof(data.last_expense) != 'undefined')
+	{
+		tabData.last_expense = data.last_expense;
+	}
+	
+	if(typeof(data.page) != 'undefined')
+	{
+		tabData.page = data.page
+	}
+	
+	$('#main-tabs').mainTabs('loadTab', tabData);
+}
+
+function wireTransactions(options)
+{
+	var editableUrl = '/transaction/edit-value/';
+	
+	$('#transaction input.datepicker').datepicker();
+
+	if(options.import)
+		importTransactions();
+
+	$('#new-transaction').button().click(function(){
+		var self = $(this);
+		var form = $('#transaction');
+		var url = self.attr('data-url');
+		$.post(url + '/format/json', form.serialize(), function(data){
+			if(data.form != undefined && data.form !== '')
+			{
+				$('#form-transaction').replaceWith(data.form);
+				$('input.datepicker', form).datepicker();
+			}
+			else
+			{
+				refreshTransactions(data);
+				processJsonResponse(data);
+			}
+		});
+	});
+
+	$('#upload-input').uploadify({
+		uploader: '/uploadify/uploadify.swf',
+		script: '/transaction/upload/',
+		cancelImg: '/uploadify/cancel.png',
+		auto: true,
+		fileDataName: 'file',
+		scriptData: options.scriptData,
+		onError : function(event, queueId, fileObj, errorObj){
+			console.log(errorObj);
+		},
+		onComplete: function(event, queueID, fileObj, response, data) { 
+			if(response == 'import')
+			{
+				importTransactions();
+			}
+		}
+	});
+
+	$('.transaction .expense').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: options.expenseOptions,
+			type: 'select',
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'expense_id'
+			}
+		});
+	});
+
+	$('.transaction .check_num').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimText,
+			type: 'text',
+			width: 50,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'check_num'
+			}
+		});
+	});
+
+	$('.transaction .description').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimText,
+			type: 'text',
+			width: 500,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'description'
+			}
+		});
+	});
+
+	$('.transaction .amount').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			data: trimCurrency,
+			type: 'text',
+			width: 75,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'amount'
+			}
+		});
+	});
+	
+	$('.transaction .date').each(function(){
+		var transaction = $(this).parent().attr('data-transaction');
+		$(this).editable(editableUrl, {
+			type: 'datepicker',
+			width: 75,
+			submit: 'Ok',
+			submitdata: {
+				format: 'html',
+				transaction_id: transaction,
+				column: 'date'
+			}
+		});
+	});
+	
+	$('.transaction .delete').each(function(){
+		var button = $(this);
+		var url = button.attr('data-url');
+		button.button({
+			icons: {
+				primary: 'ui-icon-trash'
+			},
+			text: false
+		});
+		
+		button.click(function(){
+			$.post(url, {format: 'json'}, function(data){
+				refreshTransactions(data);
+				processJsonResponse(data);
+			});
+		});
+	});
+	
+	$('.paginationControl a').click(function(){
+		var url = $(this).attr('href');
+		var parts = url.split('/');
+		refreshTransactions({page: parts[4]});
+		return false;
+	});
+	
+	$('#transaction-table').height($('#transactions').height());
+}
+
+function importTransactions()
+{
+	var box = $('<div></div>');
+	box.load('/transaction/import-form', {format: 'html'}, function(){
+		box.dialog({
+			modal: true,
+			width: 850,
+			buttons: {
+				Continue: function(){
+					var form = $('#import');
+					$.post('/transaction/import/format/json', form.serialize(), function(data){
+						processJsonResponse(data);
+						box.dialog('destroy');
+						box.remove()
+						refreshTransactions(data);
+					}, 'json');
+				},
+				Cancel: function(){
+					$(this).dialog('destroy');
+					box.remove()
+				}
+			},
+			close: function() {
+				$(this).dialog('destroy');
+				box.remove()
+			}
+		});
+	});
+}
+
+function trimText(value, setting)
+{
+	var trimmed = $.trim(value);
+	if(trimmed == '&nbsp;')
+		trimmed = '';
+
+	return trimmed	;
+}
+
+function trimCurrency(value, setting)
+{
+	value = $.trim(value);
+	var reg = new RegExp('(\\$|\\,)');
+	return value.replace(reg, '');
+}
+
+function wireIncomes(){
+	$('.edit-recurring').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-pencil'},
+		buttonText: false,
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: wireIncomes
+	});
+}
+
+function wireCategories(){
+	$('.edit-category').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-pencil'},
+		buttonText: false,
+		afterSubmit: wireCategories
+	});
+	
+	$('#category-list').sortable({
+		update: function(event, ui){
+			var categories = $(this).sortable('serialize');
+			$.post('/expense/order-categories/format/json', categories, function(data){
+				processJsonResponse(data);
+			}, 'json');
+		}
+	});
+}
+
+function wireSettings()
+{
+	wireIncomes();
+	wireCategories();
+	
+	$('#new-recurring').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterLoad: function(){
+			$('input.datepicker', self.box).datepicker();
+		},
+		afterSubmit: wireIncomes
+	});
+	
+	$('#new-category').formDialogButton({
+		buttonIcons: {primary: 'ui-icon-plusthick'},
+		afterSubmit: wireCategories
+	});
+}
+
 $(document).ready(function(){
 	var MainTabs = $('#main-tabs').mainTabs();
 	

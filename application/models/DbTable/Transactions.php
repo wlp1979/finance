@@ -25,6 +25,12 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 				$columns[] = 'expense_id';
 				$select->group('expense_id');
 			}
+			elseif($expense_id === TRUE)
+			{
+				$byExpense = true;
+				$columns[] = 'expense_id';
+				$select->group('expense_id');
+			}
 			else
 			{
 				$select->where('expense_id = ?', $expense_id);

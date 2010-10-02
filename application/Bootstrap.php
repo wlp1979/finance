@@ -83,6 +83,9 @@ function debug($message, $label=null)
 
 function noticeLogger($errno, $errstr, $errfile, $errline)
 {
+	if(error_reporting() == 0)
+		return;
+
 	$message = "$errstr on line $errline of $errfile";
 	debug($message, 'NOTICE');
 }
