@@ -3,6 +3,12 @@
 	<?php foreach($this->categories as $category) : ?>
 	<li id="category-<?= $category->id ?>" class="ui-state-default">
 		<?= $this->button(array(
+			'class' => 'delete-category right', 
+			'text' => 'Delete', 
+			'ajax' => true,
+			'url' => array('controller' => 'expense', 'action' => 'delete-category', 'category_id' => $category->id),
+			)); ?>	
+		<?= $this->button(array(
 			'class' => 'edit-category right', 
 			'text' => 'Edit', 
 			'ajax' => true,

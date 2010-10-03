@@ -176,9 +176,7 @@ class App_Model_Transaction extends Standard_Model
 		$date = $this->date;
 		$expense = $this->getExpense();
 		
-		$table = $this->getDbTable();
-		$where = $table->getAdapter()->quoteInto('id = ?', $this->id);
-		$table->delete($where);
+		parent::delete();
 		
 		$expense->updateTotals($date);
 		return true;

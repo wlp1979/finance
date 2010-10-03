@@ -162,8 +162,8 @@ class App_Model_Allocation extends Standard_Model
 	{
 		$table = $this->getDbTable();
 		$where = array(
-			'expense_id = ?' => $this->expense_id,
-			'income_id = ?' => $this->income_id,
+			$table->getAdapter()->quoteInto('expense_id = ?', $this->expense_id),
+			$table->getAdapter()->quoteInto('income_id = ?', $this->income_id),
 			);
 		
 		$table->delete($where);

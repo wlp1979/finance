@@ -291,4 +291,12 @@ abstract class Standard_Model
 		$table->bulkInsert($this->_buffer);
 		$this->_buffer = array();
 	}
+
+	public function delete()
+	{
+		$table = $this->getDbTable();
+		$where = $table->getAdapter()->quoteInto('id = ?', $this->id);
+		$table->delete($where);
+		return true;
+	}	
 }

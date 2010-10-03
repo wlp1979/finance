@@ -59,11 +59,6 @@
 	background-color: #FFF;
 }
 
-#settings h3 {
-	padding: 0.25em 0.5em;
-	margin-bottom: 0;
-}
-
 #wrapper button.ui-button, #wrapper input[type=submit] {
 	font-size: 82.8%;
 }

@@ -178,7 +178,7 @@ $.widget("ui.formDialog", {
 $.widget( "ui.formDialogButton", {
 	options: {
 		title: '',
-		width: 550,
+		width: 450,
 		buttonIcons: {},
 		buttonText: true,
 		extraButtons: {},
@@ -205,6 +205,91 @@ $.widget( "ui.formDialogButton", {
 		this.element.formDialog('destroy');
 		this.element.button('destroy');
 		this.element.unbind('.formDialogButton');
+		$.Widget.prototype.destroy.apply(this, arguments);
+	}
+});
+
+$.widget("ui.confirmDialog", {
+	options: {
+		url: '',
+		title: '',
+		confirm: '',
+		width: 450,
+		modal: true
+	},
+	_create: function() {
+		var self = this,
+			options = self.options;
+		
+		self.showConfirm();
+	},
+	showConfirm: function(){
+		var self = this,
+			options = self.options;
+		
+		self.box = $('<div></div>');
+		self.box.text(options.confirm);
+		self.box.dialog({
+			bgiframe: true,
+			resizable: true,
+			width: options.width,
+			modal: options.modal,
+			title: options.title,
+			buttons: {
+				Yes: function(event, ui){
+					$.post(options.url, {format: 'json'}, function(data){
+						processJsonResponse(data, options.afterSubmit);
+						self.destroy();
+					});
+				},
+				No: function(event, ui){
+					self.destroy();
+				}
+			},
+			close: function(event, ui) {
+				self.destroy();
+			},
+			open: function(event, ui) {
+				self._trigger('afterLoad', event)
+			}
+		});
+	},
+	destroy: function() {
+		this.box.dialog('destroy');
+		this.box.remove();
+		$.Widget.prototype.destroy.apply(this, arguments);
+	}
+});
+
+$.widget( "ui.confirmDialogButton", {
+	options: {
+		title: '',
+		confirm: 'Are you sure?',
+		width: 450,
+		buttonIcons: {},
+		buttonText: true,
+		modal: true
+	},
+	
+	_create: function() {
+		var self = this,
+			options = self.options;
+		
+		self.element.button({
+			icons: options.buttonIcons,
+			text: options.buttonText
+		});
+		
+		options.url = self.element.attr('data-url');
+		self.element.bind('click.confirmDialogButton',function(event){
+			self.element.confirmDialog(options);
+			return false;
+		});
+	},
+	destroy: function() {
+		this.element.formDialog('destroy');
+		this.element.button('destroy');
+		this.element.unbind('.confirmDialogButton');
 		$.Widget.prototype.destroy.apply(this, arguments);
 	}
 });
@@ -430,22 +515,11 @@ function wireTransactions(options)
 		});
 	});
 	
-	$('.transaction .delete').each(function(){
-		var button = $(this);
-		var url = button.attr('data-url');
-		button.button({
-			icons: {
-				primary: 'ui-icon-trash'
-			},
-			text: false
-		});
-		
-		button.click(function(){
-			$.post(url, {format: 'json'}, function(data){
-				refreshTransactions(data);
-				processJsonResponse(data);
-			});
-		});
+	$('.transaction .delete').confirmDialogButton({
+		buttonIcons: {primary: 'ui-icon-trash'},
+		buttonText: false,
+		confirm: 'Are you sure you want to delete this transaction?',
+		afterSubmit: refreshTransactions
 	});
 	
 	$('.paginationControl a').click(function(){
@@ -522,6 +596,13 @@ function wireCategories(){
 		afterSubmit: wireCategories
 	});
 	
+	$('.delete-category').confirmDialogButton({
+		buttonIcons: {primary: 'ui-icon-trash'},
+		buttonText: false,
+		confirm: 'Are you sure you want to delete this category?',
+		afterSubmit: wireCategories
+	});
+	
 	$('#category-list').sortable({
 		update: function(event, ui){
 			var categories = $(this).sortable('serialize');
@@ -534,6 +615,8 @@ function wireCategories(){
 
 function wireSettings()
 {
+	$('#accordion').accordion({fillSpace: true});
+	
 	wireIncomes();
 	wireCategories();
 	

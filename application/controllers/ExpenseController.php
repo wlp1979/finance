@@ -4,6 +4,7 @@ class ExpenseController extends Standard_Controller
 {
 	protected $_ajaxActions = array(
 		'edit-category' => 'json',
+		'delete-category' => 'json',
 		'order-categories' => 'json',
 		'edit' => 'json',
 		'chooser' => 'json',
@@ -38,6 +39,20 @@ class ExpenseController extends Standard_Controller
 		}
 		
 		$this->setForm($form);
+	}
+	
+	public function deleteCategoryAction()
+	{
+		$category = new App_Model_Category();
+		
+		if($this->_request->has('category_id') && $category->find($this->_request->category_id))
+		{
+			$category->delete();
+			$categories = $category->fetchByUser($this->user);
+			$html = $this->view->partial('partials/category-list.phtml', array('categories' => $categories));
+			$this->setRefresh('#expense-categories', $html);
+			$this->addNotification('The category has been deleted.', 'Category Deleted');
+		}
 	}
 	
 	public function orderCategoriesAction()
