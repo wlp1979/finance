@@ -327,8 +327,8 @@ function wireAllocations(scroll)
 
 	$('#choose-expense').formDialogButton({
 		width: 300,
-		submitName: 'Choose',
-		buttonIcons: {primary: 'ui-icon-check'},
+		submitName: 'Show',
+		buttonIcons: {primary: 'ui-icon-lightbulb'},
 		afterSubmit: refreshAllocations
 	});
 	
