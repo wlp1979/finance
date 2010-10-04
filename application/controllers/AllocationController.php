@@ -32,7 +32,7 @@ class AllocationController extends Standard_Controller
 		$allocations = $allocModel->fetchByIncome($incomes);
 		$expense_ids = array_keys($allocations);
 		$balances = $expTotalModel->fetchLastWithBalance($this->_startDate);
-		$expense_ids += array_keys($balances);
+		$expense_ids = array_merge($expense_ids, array_keys($balances));
 		if($this->_request->has('expense_id'))
 			$expense_ids[] = $this->_request->expense_id;
 		
