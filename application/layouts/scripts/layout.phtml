@@ -4,8 +4,6 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
 	<title>Finance Director</title>
 <?php
-$time = filemtime(APPLICATION_PATH . '/../public/js/finance.js');
-$this->headScript()->prependFile("/js/finance.{$time}.js");
 $this->headScript()->appendFile("/fixedheadertable/jquery.fixedheadertable.1.1.2.js");
 $this->headScript()->appendFile('/js/jquery.jeditable.js');
 $this->headScript()->appendFile('/js/jquery.jeditable.datepicker.js');
@@ -27,6 +25,9 @@ else
 	$this->headScript()->prependFile("/jquery/development-bundle/ui/jquery-ui-1.8.4.custom.js");
 	$this->headScript()->prependFile("/jquery/development-bundle/jquery-1.4.2.js");
 }
+
+$time = filemtime(APPLICATION_PATH . '/../public/js/finance.js');
+$this->headScript()->appendFile("/js/finance.{$time}.js");
 
 $this->headLink()->appendStylesheet('/css/yui-3.1.2-fonts-reset-base.css');
 $this->headLink()->appendStylesheet('/jquery/css/cupertino/jquery-ui-1.8.4.custom.css');

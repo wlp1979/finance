@@ -28,7 +28,7 @@ if(jQuery)(
 		jQuery.extend(jQuery.fn,{
 			uploadify:function(options) {
 				jQuery(this).each(function(){
-					settings = jQuery.extend({
+				var settings = jQuery.extend({
 					id             : jQuery(this).attr('id'), // The ID of the object being Uploadified
 					uploader       : 'uploadify.swf', // The path to the uploadify swf file
 					script         : 'uploadify.php', // The path to the uploadify backend upload script

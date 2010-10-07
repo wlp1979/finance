@@ -403,7 +403,7 @@ function wireTransactions(options)
 	
 	$('#transaction input.datepicker').datepicker();
 
-	if(options.import)
+	if(options.doImport)
 		importTransactions();
 
 	$('#new-transaction').button().click(function(){

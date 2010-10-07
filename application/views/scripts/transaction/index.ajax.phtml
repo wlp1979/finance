@@ -62,7 +62,7 @@
 <script type="text/javascript">
 $(document).ready(function(){
 	wireTransactions({
-		import: <?= json_encode($this->import) ?>,
+		doImport: <?= json_encode($this->import) ?>,
 		scriptData: {
 			<?= session_name() ?>: '<?= session_id() ?>'
 		},
