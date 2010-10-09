@@ -115,7 +115,7 @@ class App_Model_Transaction extends Standard_Model
 		{
 			$transaction = new self();
 			$transaction->loadFromDb($row);
-			$transactions[$id] = $transaction;
+			$transactions[$row->id] = $transaction;
 		}
 		
 		return $transactions;
