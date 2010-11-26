@@ -117,10 +117,8 @@ class ExpenseController extends Standard_Controller
 		$expenses = $expense->fetchByUser($this->user);
 		
 		$form = new App_Form_ExpenseChooser();
-		foreach($expenses as $expense)
-		{
-			$form->getElement('expense_id')->addMultiOption($expense->id, $expense->name);
-		}
+		$options = $expense->formOptions($this->user);		
+		$form->getElement('expense_id')->addMultiOptions($options);
 		
 		if($this->_request->isPost())
 		{

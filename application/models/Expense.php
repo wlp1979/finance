@@ -41,4 +41,16 @@ class App_Model_Expense extends Standard_Model
 		$expenseTotal = new App_Model_ExpenseTotal();
 		return $expenseTotal->updateTotals($this, $fromDate);
 	}
+	
+	public function formOptions($user)
+	{
+		$expenses = $this->fetchByUser($user);
+		$options = array();
+		foreach($expenses as $expense)
+		{
+			$options[$expense->id] = $expense->name;
+		}
+		asort($options);
+		return $options;
+	}
 }

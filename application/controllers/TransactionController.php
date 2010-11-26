@@ -36,11 +36,7 @@ class TransactionController extends Standard_Controller
 		$expenses = $expense->findMany($expenseIds);
 		
 		$form = new App_Form_Transaction();
-		foreach($expense->fetchByUser($this->user) as $expense)
-		{
-			$options[$expense->id] = $expense->name;
-		}
-		asort($options);
+		$options = $expense->formOptions($this->user);
 		$form->getElement('expense_id')->addMultiOptions($options);
 		
 		$data = array(
@@ -78,12 +74,7 @@ class TransactionController extends Standard_Controller
 		$form = new App_Form_Transaction();
 		$transaction = new App_Model_Transaction();
 		$expense = new App_Model_Expense();
-		
-		foreach($expense->fetchByUser($this->user) as $expense)
-		{
-			$options[$expense->id] = $expense->name;
-		}
-		asort($options);
+		$options = $expense->formOptions($this->user);
 		$form->getElement('expense_id')->addMultiOptions($options);
 		
 		if($this->_request->has('transaction_id') && $transaction->find($this->_request->transaction_id))
@@ -203,12 +194,7 @@ class TransactionController extends Standard_Controller
 		}
 
 		$expense = new App_Model_Expense();
-		
-		$this->view->options = array();
-		foreach($expense->fetchByUser($this->user) as $expense)
-		{
-			$this->view->options[$expense->id] = $expense->name;
-		}
+		$this->view->options = $expense->formOptions($this->user);
 	}
 	
 	public function importAction()
