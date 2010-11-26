@@ -116,7 +116,7 @@
 }
 
 #allocations table .first {
-	width: 150px;
+	width: 155px;
 }
 
 #allocations table .category td.first {
@@ -195,3 +195,6 @@ fixedHeaderTable Styles
 	width: 6em;
 }
 
+.help {
+	font-size: 91.4%;
+}

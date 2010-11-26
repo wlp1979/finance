@@ -99,9 +99,38 @@ $currency = new Zend_Currency();
 					@$categoryTotals['spent'] += $spent;
 					$balance = @$this->balances[$expense->id];
 					$allocated = 0;
+					$title = '';
+					if($expense->day_due > 0)
+					{
+						$title = ($expense->auto_pay > 0) ? "Auto Pay" : "Due";
+						switch(substr($expense->day_due, -1))
+						{
+							case "1":
+							$end = 'st';
+							break;
+							
+							case "2":
+							$end = 'nd';
+							break;
+							
+							case "3":
+							$end = 'rd';
+							break;
+							
+							default:
+							$end = 'th';
+							break;
+						}
+						$title .= " on the {$expense->day_due}{$end}";
+					}
 					?>
 					<tr>
-						<td class="first expense" data-expense="<?= $expense->id ?>"><?= $expense->name ?></td>
+						<td class="first expense" data-expense="<?= $expense->id ?>" title="<?= $title ?>">
+							<?php if($expense->day_due > 0 ) : ?>
+							*
+							<?php endif; ?>
+							<?= $expense->name ?>
+						</td>
 						<td><?= $currency->setValue(0)//$expense->getAverage()) ?></td>
 						<td>
 							<?php if($balance instanceof App_Model_ExpenseTotal) : ?>
@@ -180,6 +209,7 @@ $currency = new Zend_Currency();
 	</tfoot>
 </table>
 </div>
+<p class="help">* = hover for more information</p>
 <script type="text/javascript">
 $(document).ready(function(){
 	wireAllocations(<?= $this->scroll ?>);
