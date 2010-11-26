@@ -298,5 +298,18 @@ abstract class Standard_Model
 		$where = $table->getAdapter()->quoteInto('id = ?', $this->id);
 		$table->delete($where);
 		return true;
-	}	
+	}
+	
+	protected function _countMonths($start, $end)
+	{
+		$monthStart = strtotime(strftime('%m/01/%Y', $start));
+		$monthEnd = strtotime(strftime('%m/01/%Y', $end));
+		$months = 0;
+		for($i = $monthStart; $i < $monthEnd; $i= strtotime('+1 month', $i))
+		{
+			$months++;
+		}
+		
+		return $months;
+	}
 }

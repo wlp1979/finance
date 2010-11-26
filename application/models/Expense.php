@@ -53,4 +53,18 @@ class App_Model_Expense extends Standard_Model
 		asort($options);
 		return $options;
 	}
+	
+	public function getAverages($expenses, $start)
+	{
+		$transaction = new App_Model_Transaction();
+		$totals = $transaction->total($start, null, $expenses, true);
+		$averages = array();
+		foreach($totals as $row)
+		{
+			$months = $this->_countMonths($row['start'], $start);
+			$averages[$row['expense_id']] = $row['total'] / $months;
+		}
+		
+		return $averages;
+	}
 }

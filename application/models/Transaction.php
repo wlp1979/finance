@@ -19,7 +19,7 @@ class App_Model_Transaction extends Standard_Model
 	protected $_oldDate;
 	protected $_oldExpenseId;
 		
-	public function total($end, $start = null, $expenses = null)
+	public function total($end, $start = null, $expenses = null, $dates = false)
 	{
 		$user = Zend_Auth::getInstance()->getIdentity();
 		$table = $this->getDbTable();
@@ -47,7 +47,7 @@ class App_Model_Transaction extends Standard_Model
 			}
 		}
 		
-		return $table->total($user->id, $end, $start, $expense_id);
+		return $table->total($user->id, $end, $start, $expense_id, $dates);
 	}
 	
 	public function save()

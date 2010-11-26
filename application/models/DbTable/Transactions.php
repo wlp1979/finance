@@ -4,7 +4,7 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 {
 	protected $_name = 'transactions';
 
-	public function total($user_id, $end, $start = null, $expense_id = null)
+	public function total($user_id, $end, $start = null, $expense_id = null, $dates = false)
 	{
 		$select = $this->getAdapter()->select();
 		$columns = array('sum(amount) as total');
@@ -36,6 +36,13 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 				$select->where('expense_id = ?', $expense_id);
 			}
 		}
+		
+		if($dates)
+		{
+			$columns[] = 'min(date) as start';
+			$columns[] = 'max(date) as end';
+		}
+		
 		$select->from($this->_name, $columns);
 		$stmt = $select->query();
 		$result = $stmt->fetchAll();
@@ -44,7 +51,14 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 		{
 			foreach($result as $row)
 			{
-				$totals[$row['expense_id']] = $row['total'];
+				if($dates)
+				{
+					$totals[$row['expense_id']] = $row;
+				}
+				else
+				{
+					$totals[$row['expense_id']] = $row['total'];
+				}
 			}
 			
 			return $totals;

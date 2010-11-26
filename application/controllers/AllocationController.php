@@ -46,7 +46,7 @@ class AllocationController extends Standard_Controller
 		
 		$expenses = $expModel->findMany($expense_ids);
 		$categories = $catModel->fetchByUser($this->user);
-		
+		$this->view->averages = $expModel->getAverages($expenses, $this->_startDate);
 		$this->view->incomes = $incomes;
 		$this->view->totalStarting = $totalStarting;
 		$this->view->categories = $categories;

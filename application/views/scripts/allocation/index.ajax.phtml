@@ -123,6 +123,8 @@ $currency = new Zend_Currency();
 						}
 						$title .= " on the {$expense->day_due}{$end}";
 					}
+					
+					$average = @$this->averages[$expense->id];
 					?>
 					<tr>
 						<td class="first expense" data-expense="<?= $expense->id ?>" title="<?= $title ?>">
@@ -131,7 +133,7 @@ $currency = new Zend_Currency();
 							<?php endif; ?>
 							<?= $expense->name ?>
 						</td>
-						<td><?= $currency->setValue(0)//$expense->getAverage()) ?></td>
+						<td><?= $currency->setValue($average) ?></td>
 						<td>
 							<?php if($balance instanceof App_Model_ExpenseTotal) : ?>
 								<?php
