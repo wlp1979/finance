@@ -58,6 +58,12 @@ class TransactionController extends Standard_Controller
 		
 		$form->populate($data);
 		
+		$lastImport = new App_Model_Transaction();
+		if($lastImport->findLastImport())
+		{
+			$this->view->lastImport = $lastImport;
+		}
+		
 		$sessns = new Zend_Session_Namespace('import');
 		$this->view->import = (count($sessns->import) > 0);
 		$this->view->paginator = $paginator;

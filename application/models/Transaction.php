@@ -181,5 +181,16 @@ class App_Model_Transaction extends Standard_Model
 		$expense->updateTotals($date);
 		return true;
 	}
-	
+
+	public function findLastImport()
+	{
+		$user = Zend_Auth::getInstance()->getIdentity();
+		$table = $this->getDbTable();
+		$row = $table->findLastImport($user->id);
+		if(empty($row))
+			return false;
+		
+		$this->loadFromDb($row);
+		return $this;	
+	}
 }

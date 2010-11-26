@@ -103,4 +103,14 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 		
 		return $this->fetchRow($select);
 	}
+
+	public function findLastImport($user_id)
+	{
+		$select = $this->select();
+		$select->where('user_id = ?', $user_id);
+		$select->where('ofxid != "" OR ofxid IS NOT NULL');
+		$select->order('date DESC');
+
+		return $this->fetchRow($select);
+	}
 }

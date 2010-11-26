@@ -14,6 +14,13 @@
 	</div>
 	<div class="transaction-form ui-widget-content ui-corner-all">
 		<h3>Import Transactions</h3>
+		<ol>
+			<li>Download transactions from you financial institution in the OFX or Microsoft Money format</li>
+			<li>Click the Browse button below and upload that file here</li>
+		</ol>
+		<?php if(isset($this->lastImport)) : ?>
+			<p>Last Import: <?= $this->lastImport->displayDate() ?></p>
+		<?php endif; ?>
 		<input id="upload-input" name="transactions" type="file" />
 	</div>
 </div>
