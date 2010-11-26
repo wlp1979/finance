@@ -33,12 +33,19 @@ class App_Model_Allocation extends Standard_Model
 				$expense_id = array();
 				foreach($expenses as $expense)
 				{
-					$expense_id[] = $expense->id;
+					if($expense instanceof App_Model_Expense)
+						$expense_id[] = $expense->id;
+					else
+						$expense_id[] = $expense;
 				}
+			}
+			elseif($expenses instanceof App_Model_Expense)
+			{
+				$expense_id = $expenses->id;
 			}
 			else
 			{
-				$expense_id = $expenses->id;
+				$expense_id = $expenses;
 			}
 		}
 		
