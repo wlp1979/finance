@@ -15,15 +15,15 @@ if(APPLICATION_ENV == 'production')
 {
 	$this->headScript()->appendFile('/uploadify/jquery.uploadify.v2.1.0.min.js');
 	$this->headScript()->prependFile("/gritter/js/jquery.gritter.min.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-ui-1.8.4.custom.min.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-1.4.2.min.js");
+	$this->headScript()->prependFile("/jquery/js/jquery-ui-1.8.6.custom.min.js");
+	$this->headScript()->prependFile("/jquery/js/jquery-1.4.4.min.js");
 }
 else
 {
 	$this->headScript()->appendFile('/uploadify/jquery.uploadify.v2.1.0.js');
 	$this->headScript()->prependFile("/gritter/js/jquery.gritter.js");
-	$this->headScript()->prependFile("/jquery/development-bundle/ui/jquery-ui-1.8.4.custom.js");
-	$this->headScript()->prependFile("/jquery/development-bundle/jquery-1.4.2.js");
+	$this->headScript()->prependFile("/jquery/js/jquery-ui-1.8.6.custom.js");
+	$this->headScript()->prependFile("/jquery/js/jquery-1.4.4.js");
 }
 
 $time = filemtime(APPLICATION_PATH . '/../public/js/finance.js');
