@@ -346,6 +346,9 @@ function wireAllocations(scroll)
 		var income = $(this);
 		var options = {
 			url: '/income/edit/income_id/' + income.attr('data-income'),
+			afterLoad: function(){
+				$('input.datepicker', self.box).datepicker();
+			},
 			afterSubmit: refreshAllocations
 		};
 		income.formDialog(options);
