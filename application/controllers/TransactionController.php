@@ -220,9 +220,9 @@ class TransactionController extends Standard_Controller
 					$match = new App_Model_Transaction();
 					if($match->find($params['match'][$ofxid]))
 					{
-						$match->date = $data['date'];
-						$match->description = $data['description'];
-						$match->expense_id = $data['expense_id'];
+						// $match->date = $data['date'];
+						// $match->description = $data['description'];
+						// $match->expense_id = $data['expense_id'];
 						$match->ofxid = $ofxid;
 						$match->save();
 					}
