@@ -14,7 +14,7 @@
 			<tbody>
 				<?php foreach($this->import as $ofxid => $import): ?>
 					<?php $match = isset($this->matches[$ofxid]) ? $this->matches[$ofxid] : false; ?>
-					<tr>
+					<tr class="import-row" id="<?= $ofxid ?>">
 						<td <?php if($match) echo 'rowspan="2"' ?>>
 							<input class="import" type="checkbox" name="import[]" value="<?= $ofxid ?>" /> <label>Import</label>
 							<?php if($match) : ?>

@@ -215,19 +215,19 @@ class TransactionController extends Standard_Controller
 					
 					$transaction->save();
 				}
-				elseif(isset($params['match'][$ofxid]))
-				{
-					$match = new App_Model_Transaction();
-					if($match->find($params['match'][$ofxid]))
-					{
-						// $match->date = $data['date'];
-						// $match->description = $data['description'];
-						// $match->expense_id = $data['expense_id'];
-						$match->ofxid = $ofxid;
-						$match->save();
-					}
-				}
 				
+				unset($sessns->import[$ofxid]);
+			}
+			
+			foreach($params['match'] as $ofxid => $id)
+			{
+				$match = new App_Model_Transaction();
+				if($match->find($params['match'][$ofxid]))
+				{
+					$match->ofxid = $ofxid;
+					$match->save();
+				}
+
 				unset($sessns->import[$ofxid]);
 			}
 		}

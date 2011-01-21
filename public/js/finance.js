@@ -539,6 +539,21 @@ function importTransactions()
 {
 	var box = $('<div></div>');
 	box.load('/transaction/import-form', {format: 'html'}, function(){
+		box.find('input.match').bind('click keypress', function(){
+			var self = $(this);
+			var row = self.closest('tr.import-row');
+			var others = row.find('input.import, input.date, input.description, select.expense_id');
+			
+			if(self.is(':checked'))
+			{
+				others.attr('disabled', 'disabled');
+			}
+			else
+			{
+				others.removeAttr('disabled');
+			}
+		});
+		
 		box.dialog({
 			modal: true,
 			width: 850,
