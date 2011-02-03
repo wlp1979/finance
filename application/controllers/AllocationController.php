@@ -91,7 +91,7 @@ class AllocationController extends Standard_Controller
 		$expenseModel = new App_Model_Expense();
 		$allocModel = new App_Model_Allocation();
 		$expTotalModel = new App_Model_ExpenseTotal();
-		$expenses = $expenseModel->fetchSummary($this->_startDate, $this->_endDate);
+		$expenses = $expenseModel->fetchSummary();
 		$prevTotals = $expTotalModel->fetchLastByExpense($expenses, $this->_startDate);
 		$expenseStart = array();
 		$expenseCurrent = array();

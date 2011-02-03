@@ -20,11 +20,11 @@ class App_Model_Expense extends Standard_Model
 		return $transaction->total($start, $end, array($this));
 	}
 	
-	public function fetchSummary($start, $end)
+	public function fetchSummary()
 	{
 		$user = Zend_Auth::getInstance()->getIdentity();
 		$table = $this->getDbTable();
-		$rows = $table->fetchSummary($user->id, $start, $end);
+		$rows = $table->fetchSummary($user->id);
 		$expenses = array();
 		foreach($rows as $row)
 		{
