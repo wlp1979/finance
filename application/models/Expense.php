@@ -12,6 +12,7 @@ class App_Model_Expense extends Standard_Model
 		'auto_pay' => 'int',
 		'summary' => 'int',
 		'category_id' => 'int',
+		'auto_hide' => 'int',
 		);
 	
 	public function totalSpent($start, $end)
@@ -66,5 +67,21 @@ class App_Model_Expense extends Standard_Model
 		}
 		
 		return $averages;
+	}
+	
+	public function fetchVisible($expense_ids = null)
+	{
+		$user = Zend_Auth::getInstance()->getIdentity();
+		$table = $this->getDbTable();
+		$rows = $table->fetchVisible($user->id, $expense_ids);
+		$expenses = array();
+		foreach($rows as $row)
+		{
+			$expense = new self();
+			$expense->loadFromDb($row);
+			$expenses[$expense->id] = $expense;
+		}
+		
+		return $expenses;
 	}
 }

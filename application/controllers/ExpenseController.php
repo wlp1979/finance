@@ -98,6 +98,7 @@ class ExpenseController extends Standard_Controller
 				$expense->day_due = $form->getValue('day_due');
 				$expense->auto_pay = $form->getValue('auto_pay');
 				$expense->summary = $form->getValue('summary');
+				$expense->auto_hide = $form->getValue('auto_hide');
 				
 				$expense->save();
 				

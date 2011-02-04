@@ -37,13 +37,11 @@ class App_Model_DbTable_ExpenseTotals extends Standard_Db_Table
 	{
 		$sub = $this->getAdapter()->select();
 		$sub->from($this->_name, array('expense_id', 'max(end_date) as end_date'));
-		$expenses = $this->getAdapter()->select();
-		$expenses->from('expenses', array('id'));
-		$expenses->where('user_id = ?', $user_id);
-		$sub->where("expense_id IN ($expenses)");
+		$sub->join('expenses', 'expense_totals.expense_id = expenses.id', array());
+		$sub->where('expenses.user_id = ?', $user_id);
 		if($end > 0)
-			$sub->where('end_date <= ?', $end);
-		$sub->group('expense_id');
+			$sub->where('expense_totals.end_date <= ?', $end);
+		$sub->group('expense_totals.expense_id');
 		$select = $this->select(Zend_Db_Table_Abstract::SELECT_WITH_FROM_PART);
 		$select->join($sub, 'expense_totals.expense_id = t.expense_id AND expense_totals.end_date = t.end_date', array());
 		if($excludeZero)

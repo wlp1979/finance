@@ -22,15 +22,19 @@ class App_Model_DbTable_Expenses extends Standard_Db_Table
 		return $this->fetchAll($select);
 	}
 
-	public function findMany($ids)
+	public function fetchVisible($user_id, $ids = null)
 	{
-		$columns = $this->_getCols();
-		if(!in_array('id', $columns))
-			return null;
-		
 		$select = $this->select();
-		$select->where('id IN (?)', $ids);
+		$db = $this->getAdapter();
+		$select->where('user_id = ?', $user_id);
+		
+		$where = 'auto_hide = 0';
+		if(!empty($ids))
+		{
+			$where .= $db->quoteInto(' OR id IN (?)', (array) $ids);
+		}
+		$select->where($where);
 		$select->order(array('category_id', 'day_due'));
 		return $this->fetchAll($select);
-	}	
+	}
 }
