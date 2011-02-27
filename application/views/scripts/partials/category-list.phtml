@@ -1,7 +1,7 @@
 <?php if(!empty($this->categories)) : ?>
 <ul id="category-list">
 	<?php foreach($this->categories as $category) : ?>
-	<li id="category-<?= $category->id ?>" class="ui-state-default">
+	<li id="category-<?= $category->id ?>" class="ui-widget ui-widget-content ui-corner-all">
 		<?= $this->button(array(
 			'class' => 'delete-category right', 
 			'text' => 'Delete', 

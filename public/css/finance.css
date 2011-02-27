@@ -13,6 +13,15 @@
 	height: 0;
 }
 
+table {
+	font-size: 93%;
+}
+
+table thead, table tfoot {
+	background: #DCE6F4;
+	color: #222;
+}
+
 /* Forms */
 .form ul.errors {
 	margin-left: 1em;
@@ -60,7 +69,7 @@
 }
 
 #wrapper button.ui-button, #wrapper input[type=submit] {
-	font-size: 82.8%;
+	font-size: 85%;
 }
 
 #wrapper button.right {
@@ -126,11 +135,6 @@
 
 #allocations table tr.total td {
 	font-weight: bold;
-}
-
-table thead, table tfoot {
-	background: #DCE6F4;
-	color: #222;
 }
 
 /*
