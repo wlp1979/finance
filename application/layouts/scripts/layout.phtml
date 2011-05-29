@@ -15,22 +15,22 @@ if(APPLICATION_ENV == 'production')
 {
 	$this->headScript()->appendFile('/uploadify/jquery.uploadify.v2.1.0.min.js');
 	$this->headScript()->prependFile("/gritter/js/jquery.gritter.min.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-ui-1.8.9.custom.min.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-1.5.min.js");
+	$this->headScript()->prependFile("/jquery/js/jquery.min.js");
+	$this->headScript()->prependFile("/jquery/js/jquery.min.js");
 }
 else
 {
 	$this->headScript()->appendFile('/uploadify/jquery.uploadify.v2.1.0.js');
 	$this->headScript()->prependFile("/gritter/js/jquery.gritter.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-ui-1.8.9.custom.js");
-	$this->headScript()->prependFile("/jquery/js/jquery-1.5.js");
+	$this->headScript()->prependFile("/jquery/js/jquery-ui.js");
+	$this->headScript()->prependFile("/jquery/js/jquery.js");
 }
 
 $time = filemtime(APPLICATION_PATH . '/../public/js/finance.js');
 $this->headScript()->appendFile("/js/finance.{$time}.js");
 
 $this->headLink()->appendStylesheet('/css/yui-3.3.0-reset-fonts-base.css');
-$this->headLink()->appendStylesheet('/jquery/css/start/jquery-ui-1.8.10.custom.css');
+$this->headLink()->appendStylesheet('/jquery/css/start/jquery-ui.css');
 $this->headLink()->appendStylesheet('/gritter/css/jquery.gritter.css');
 $this->headLink()->appendStylesheet('/uploadify/uploadify.css');
 
