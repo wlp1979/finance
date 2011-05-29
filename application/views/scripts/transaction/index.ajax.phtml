@@ -1,5 +1,9 @@
 <div id="transaction-forms">
 	<div class="transaction-form ui-widget-content ui-corner-all">
+		<h3>Filter Transactions</h3>
+		<?= $this->filterForm ?>
+	</div>
+	<div class="transaction-form ui-widget-content ui-corner-all">
 		<h3>New Transaction</h3>
 		<?= $this->form ?>
 		<div class="buttons">
@@ -14,12 +18,11 @@
 	</div>
 	<div class="transaction-form ui-widget-content ui-corner-all">
 		<h3>Import Transactions</h3>
-		<ol class="help">
-			<li>Download transactions in the OFX or Microsoft Money format</li>
-			<li>Click Browse and upload that file</li>
-		</ol>
+		<p class="help">
+			Upload transactions in the OFX or Microsoft Money format
+		</p>
 		<?php if(isset($this->lastImport)) : ?>
-			<p>Last Import: <?= $this->lastImport->displayDate() ?></p>
+			<p class="help">Last Import: <?= $this->lastImport->displayDate() ?></p>
 		<?php endif; ?>
 		<input id="upload-input" name="transactions" type="file" />
 	</div>

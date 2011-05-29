@@ -382,6 +382,8 @@ function wireAllocations(scroll)
 function refreshTransactions(data)
 {
 	var tabData = {};
+	var filter = $('#filter_expense_id');
+	
 	if(typeof(data.last_date) != 'undefined')
 	{
 		tabData.last_date = data.last_date;
@@ -394,7 +396,20 @@ function refreshTransactions(data)
 	
 	if(typeof(data.page) != 'undefined')
 	{
-		tabData.page = data.page
+		tabData.page = data.page;
+	}
+	
+	if(typeof(data.expense_id) != 'undefined')
+	{
+		tabData.expense_id = data.expense_id;
+	}
+	else if(filter.length > 0)
+	{
+		var expense_id = filter.val();
+		if(expense_id != '')
+		{
+			tabData.expense_id = expense_id;
+		}
 	}
 	
 	$('#main-tabs').mainTabs('loadTab', tabData);
@@ -408,6 +423,10 @@ function wireTransactions(options)
 
 	if(options.doImport)
 		importTransactions();
+		
+	$('#filter_expense_id').change(function(){
+		refreshTransactions({});
+	});
 
 	$('#new-transaction').button().click(function(){
 		var self = $(this);

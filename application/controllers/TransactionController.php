@@ -14,7 +14,18 @@ class TransactionController extends Standard_Controller
 	public function indexAction()
 	{
 		$transaction = new App_Model_Transaction();
-		$paginator = $transaction->fetchRange($this->user, $this->_startDate, $this->_endDate);
+		
+		$expense = null;
+		if($this->_request->has('expense_id') && !empty($this->_request->expense_id))
+		{
+			$expenseModel = new App_Model_Expense();
+			if($expenseModel->find($this->_request->expense_id))
+			{
+				$expense = $expenseModel;
+			}
+		}
+		
+		$paginator = $transaction->fetchRange($this->user, $this->_startDate, $this->_endDate, $expense);
         $paginator->setItemCountPerPage(30);
         $paginator->setCurrentPageNumber($this->_request->getParam('page', 1));
         Zend_Paginator::setDefaultScrollingStyle('Sliding');
@@ -32,12 +43,19 @@ class TransactionController extends Standard_Controller
 			$expenseIds[$row->expense_id] = $row->expense_id; 
 		}
 		
-		$expense = new App_Model_Expense();
-		$expenses = $expense->findMany($expenseIds);
+		$expenseModel = new App_Model_Expense();
+		$expenses = $expenseModel->findMany($expenseIds);
 		
 		$form = new App_Form_Transaction();
-		$options = $expense->formOptions($this->user);
+		$options = $expenseModel->formOptions($this->user);
 		$form->getElement('expense_id')->addMultiOptions($options);
+
+		$filterForm = new App_Form_TransactionFilter();
+		$filterForm->getElement('filter_expense_id')->addMultiOptions($options);
+		if($expense instanceof App_Model_Expense)
+		{
+			$filterForm->getElement('filter_expense_id')->setValue($expense->id);
+		}
 		
 		$data = array(
 			'date' => strftime('%m/%d/%y'),
@@ -67,6 +85,7 @@ class TransactionController extends Standard_Controller
 		$this->view->expenses = $expenses;
 		$this->view->form = $form;
 		$this->view->expenseOptions = $options;
+		$this->view->filterForm = $filterForm;
 	}
 	
 	public function editAction()
