@@ -37,7 +37,7 @@ class AllocationController extends Standard_Controller
 			$expense_ids[] = $this->_request->expense_id;
 		
 		$spent = $transModel->total($this->_endDate, $this->_startDate, true);
-		if(is_array($spend))
+		if(is_array($spent))
 		{
 			foreach($spent as $expense_id => $total)
 			{
@@ -46,7 +46,7 @@ class AllocationController extends Standard_Controller
 		}
 
 		$expense_ids = array_unique($expense_ids);
-		
+
 		$expenses = $expModel->fetchVisible($expense_ids);
 		$categories = $catModel->fetchByUser($this->user);
 		$this->view->averages = $expModel->getAverages($expenses, $this->_startDate);
