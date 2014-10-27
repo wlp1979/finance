@@ -43,19 +43,6 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
         Zend_Registry::set('config', $config);
     }
 
-	protected function _initFirePhp()
-	{
-		$logger = new Zend_Log();
-		if(APPLICATION_ENV != 'production') {
-			$writer = new Zend_Log_Writer_Firebug();
-			set_error_handler('noticeLogger', E_NOTICE);
-		} else {
-			$writer = new Zend_Log_Writer_Mock();
-		}
-		$logger->addWriter($writer);
-		Zend_Registry::set('logger', $logger);
-	}
-
 	protected function _initMetadataCache()
 	{
 		$cache = Zend_Cache::factory(
@@ -70,22 +57,4 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 			);
 		Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
 	}
-}
-
-function debug($message, $label=null)
-{
-	$extras = array();
-	if ($label!=null) {
-		$extras['firebugLabel'] = $label;
-	}
-	Zend_Registry::get('logger')->debug($message,$extras);
-}
-
-function noticeLogger($errno, $errstr, $errfile, $errline)
-{
-	if(error_reporting() == 0)
-		return;
-
-	$message = "$errstr on line $errline of $errfile";
-	debug($message, 'NOTICE');
 }
