@@ -2,46 +2,31 @@
 
 class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
-    /**
-     * Bootstrap the view helpers
-     * 
-     * @return void
-     */
-    protected function _initViewHelpers()
-    {
-        $this->bootstrap('view');
-        $this->bootstrap('db');
-        $this->bootstrap('session');
-        $view = $this->getResource('view');
-		$view->addHelperPath(APPLICATION_PATH . '/views/helpers', 'App_View_Helper');
-        $view->doctype('HTML5');
-    }
-    
-    /**
-     * Explicitly starts a Zend_Session
-     *
-     * @return void
-     **/
-    protected function _initSession()
-    {
+	/**
+	 * Explicitly starts a Zend_Session
+	 *
+	 * @return void
+	 **/
+	protected function _initSession()
+	{
 		if(isset($_POST[session_name()]))
 		{
 			Zend_Session::setId($_POST[session_name()]);
 		}
-        Zend_Session::start();
-    }
-    
-    /**
-     * Puts the main application configuration in the registry
-     *
-     * @return void
-     * @author Lee Parker
-     **/
-    protected function _initConfig()
-    {
-        $config = new Zend_Config($this->getOptions());
-        Zend_Registry::set('config', $config);
-    }
+		Zend_Session::start();
+	}
+	
+	/**
+	 * Puts the main application configuration in the registry
+	 *
+	 * @return void
+	 * @author Lee Parker
+	 **/
+	protected function _initConfig()
+	{
+		$config = new Zend_Config($this->getOptions());
+		Zend_Registry::set('config', $config);
+	}
 
 	protected function _initMetadataCache()
 	{
@@ -57,4 +42,22 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 			);
 		Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
 	}
+
+	/**
+	 * Bootstrap autoloader for application resources
+	 * 
+	 * @return Zend_Application_Module_Autoloader
+	 */
+	protected function _initAutoload()
+	{
+		$autoloader = new Zend_Application_Module_Autoloader(array(
+			'namespace' => 'App',
+			'basePath'  => dirname(__FILE__),
+			));
+		// look in dto directory as well
+		$autoloader->addResourceType('dtos', '/dtos/', 'Dto');
+
+		return $autoloader;
+	}
+
 }

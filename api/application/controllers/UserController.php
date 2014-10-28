@@ -39,14 +39,14 @@ class UserController extends Standard_Controller
 	{
 		$form = new App_Form_Login();
 		$auth = Zend_Auth::getInstance();
-		if($auth->hasIdentity())
-		{
-			$this->_redirect('/');
-		}
-
+		$response = new stdClass();
 		if($this->_request->isPost())
 		{
-			$params = $this->_request->getPost();
+			$postData = $this->getPostData();
+			$params = array(
+				'email' => $postData->email,
+				'password' => $postData->password
+				);
 			if($form->isValid($params))
 			{
 				$email = $params['email'];
@@ -65,29 +65,14 @@ class UserController extends Standard_Controller
 					$row = $adapter->getResultRowObject();
 					$user->loadFromDb($row);
 					$user->login();
-					if($params['remember'] == 1)
-					{
-						$persist = new App_Model_PersistentLogin();
-						$persist->setup($user);
-					}
-					
-					if(!empty($_SERVER['HTTP_REFERER'])) 
-					{
-						return $this->_redirect($_SERVER['HTTP_REFERER']);
-					} 
-					else 
-					{
-						return $this->_redirect('/');
-					}
+					return;
 				}
 				else
 				{
-					$form->getElement('email')->addError("Incorrect email/password combination.");
+					throw new Standard_Controller_AccessDeniedException("invalid login");
 				}
 			}
 		}
-		
-		$this->view->form = $form;
 	}
 	
 	public function forgotPasswordAction()
@@ -110,6 +95,5 @@ class UserController extends Standard_Controller
 		$auth = Zend_Auth::getInstance();
 		$auth->clearIdentity();
 		Zend_Session::destroy();
-		return $this->_redirect('/');
 	}
 }

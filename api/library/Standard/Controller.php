@@ -9,18 +9,9 @@ class Standard_Controller extends Zend_Controller_Action
 	
 	public function init()
 	{
-		if(isset($this->_ajaxActions))
-		{
-			$ajaxContext = $this->_helper->getHelper('AjaxContext');
-			foreach($this->_ajaxActions as $action => $context)
-			{
-				$ajaxContext->addActionContext($action, $context);
+        $this->_helper->viewRenderer->setNoRender(true);
+        $this->getResponse()->setHeader('Content-Type', 'application/json; charset=UTF-8');
 
-			}
-			$ajaxContext->initContext();
-			$this->_context = $ajaxContext->getCurrentContext();
-		}
-		
 		$sessns = new Zend_Session_Namespace();
 		if($this->_request->has('month') && $this->_request->has('year'))
 		{
@@ -48,11 +39,6 @@ class Standard_Controller extends Zend_Controller_Action
 		$auth = Zend_Auth::getInstance();
 		if($auth->hasIdentity())
 			$this->user = $auth->getIdentity();
-			
-		if($this->_context == 'json')
-		{
-			ini_set('display_errors', false);
-		}
 	}
 
 	public function preDispatch()
@@ -62,10 +48,10 @@ class Standard_Controller extends Zend_Controller_Action
         $action = $this->_request->getActionName();
 		if (!$auth->hasIdentity() && (!isset($this->_anonActions) || !in_array($action, $this->_anonActions))) 
 		{
-			$this->_forward('login', 'user');
+			throw new Standard_Controller_AccessDeniedException();
 		}
 	}
-	
+
 	public function setDatesByMonth($month, $year)
 	{
 		$date = new Zend_Date("{$month}-01-{$year}", null, 'en_US');
@@ -128,5 +114,15 @@ class Standard_Controller extends Zend_Controller_Action
 	public function setError($text)
 	{
 		$this->view->error = $text;
+	}
+
+	protected function getPostData() {
+		if($this->_request->isPost()) {
+			return json_decode($this->_request->getRawBody());
+		}
+	}
+
+	protected function returnJsonResponse(App_Dto_Abstract $data) {
+		echo json_encode($data);
 	}
 }

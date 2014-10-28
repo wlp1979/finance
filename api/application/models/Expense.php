@@ -33,6 +33,10 @@ class App_Model_Expense extends Standard_Model
 			$expense->loadFromDb($row);
 			$expenses[$expense->id] = $expense;
 		}
+
+		uasort($expenses, function($a, $b) {
+			return strnatcasecmp($a->name, $b->name);
+		});
 		
 		return $expenses;
 	}

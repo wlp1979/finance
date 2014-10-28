@@ -1,0 +1,17 @@
+<h4 class="balance-summary-total">Current Available Balance: {{summary.total.currentlyAvailable | currency}}</h4>
+<table ng-show="summary.expenses.length > 0" class="balance-summary-expenses table table-striped">
+	<thead>
+		<tr>
+			<th>Expense</th>
+			<th>Remaining Allocated</th>
+			<th>Currently Available</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="expense in summary.expenses">
+			<td>{{expense.name}}</td>
+			<td>{{expense.remainingAllocated | currency}}</td>
+			<td>{{expense.currentlyAvailable | currency}}</td>
+		</tr>
+	</tbody>
+</table>

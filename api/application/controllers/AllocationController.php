@@ -4,7 +4,7 @@ class AllocationController extends Standard_Controller
 {
 	protected $_ajaxActions = array(
 		'index' => 'html',
-		'summary' => 'html',
+		'summary' => 'json',
 		'edit' => 'json',
 		'delete' => 'json',
 		);
@@ -62,7 +62,9 @@ class AllocationController extends Standard_Controller
 	
 	public function summaryAction()
 	{
-		$now = time();
+		$now = new Zend_Date();
+		$this->setDatesByMonth($now->get(Zend_Date::MONTH), $now->get(Zend_Date::YEAR));
+
 		$incomeModel = new App_Model_Income();
 		$incomes = $incomeModel->fetchByRange($this->_startDate, $this->_endDate);
 
@@ -83,7 +85,7 @@ class AllocationController extends Standard_Controller
 		foreach($incomes as $income)
 		{
 			$totalIncome += $income->amount;
-			if($income->date <= $now)
+			if($income->date <= $now->getTimestamp())
 			{
 				$totalCurrent += $income->amount;
 			}
@@ -111,7 +113,7 @@ class AllocationController extends Standard_Controller
 			foreach($expenseAllocations as $allocation)
 			{
 				$expenseAllocated[$allocation->expense_id] += $allocation->amount;
-				if($incomes[$allocation->income_id]->date <= $now)
+				if($incomes[$allocation->income_id]->date <= $now->getTimestamp())
 				{
 					$expenseCurrent[$allocation->expense_id] += $allocation->amount;
 				}
@@ -126,19 +128,22 @@ class AllocationController extends Standard_Controller
 			$expenseRemaining[$id] = $expenseStart[$id] + $expenseAllocated[$id] - $expenseSpent[$id];
 		}
 		
-		
-		$this->view->totalStarting = $totalStarting;
-		$this->view->totalIncome = $totalIncome;
-		$this->view->totalSpent = $totalSpent;
-		$this->view->totalRemaining = $totalStarting + $totalIncome - $totalSpent;
-		$this->view->totalCurrent = $totalCurrent - $totalSpent;
-		
-		$this->view->expenses = $expenses;
-		$this->view->expenseStart = $expenseStart;
-		$this->view->expenseAllocated = $expenseAllocated;
-		$this->view->expenseSpent = $expenseSpent;
-		$this->view->expenseRemaining = $expenseRemaining;
-		$this->view->expenseCurrent = $expenseCurrent;
+		$totalDto = new App_Dto_AllocationSummaryRecord(
+			'Total Budget', 
+			$totalStarting + $totalIncome - $totalSpent,
+			$totalCurrent - $totalSpent
+			);
+		$response = new App_Dto_AllocationSummary($totalDto);
+
+		foreach($expenses as $expense) {
+			$response->addExpenseRecord( new App_Dto_AllocationSummaryRecord(
+				$expense->name,
+				$expenseRemaining[$expense->id],
+				$expenseCurrent[$expense->id]
+			));
+		}
+
+		$this->returnJsonResponse($response);
 	}
 	
 	public function editAction()

@@ -1,0 +1,14 @@
+<iframe src="sink.html" name="sink"
+        style="display:none"></iframe>
+<form class="form-signin" role="form" name="loginForm" ng-submit="loginCtrl.login()" 
+	action="sink.html" target="sink" method="post" novalidate>
+	<h2 class="form-signin-heading">Please sign in</h2>
+	<div class="alert alert-danger" role="alert" ng-show="loginCtrl.failed">
+		Login failed. Please try again.
+	</div>
+	<input ng-model="loginCtrl.user.email" type="email" name="email" class="form-control" placeholder="Email address" required autofocus>
+	<input ng-model="loginCtrl.user.password" type="password" name="password" class="form-control" placeholder="Password" required>
+	<button class="btn btn-lg btn-primary btn-block" type="submit">
+		Sign in
+	</button>
+</form>
