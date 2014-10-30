@@ -28,6 +28,9 @@ class ErrorController extends Standard_Controller
 					$this->getResponse()->setHttpResponseCode(401);
 					$response['error'] = 'Access Denied';
 					$response['cause'] = $errors->exception->getMessage();
+				} else if ($errors->exception instanceof Standard_Controller_NotFoundException) {
+					$this->getResponse()->setHttpResponseCode(404);
+					$response['error'] = 'Resource not found';
 				}
 				break;
 			default:

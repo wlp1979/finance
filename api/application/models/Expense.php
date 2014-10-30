@@ -15,6 +15,11 @@ class App_Model_Expense extends Standard_Model
 		'auto_hide' => 'int',
 		);
 	
+	public function fetchByUser(App_Model_User $user) {
+		$expenses = parent::fetchByUser($user);
+		return $this->sort($expenses);
+	}
+
 	public function totalSpent($start, $end)
 	{
 		$transaction = new App_Model_Transaction();
@@ -34,11 +39,7 @@ class App_Model_Expense extends Standard_Model
 			$expenses[$expense->id] = $expense;
 		}
 
-		uasort($expenses, function($a, $b) {
-			return strnatcasecmp($a->name, $b->name);
-		});
-		
-		return $expenses;
+		return $this->sort($expenses);
 	}
 	
 	public function updateTotals($fromDate)
@@ -86,6 +87,14 @@ class App_Model_Expense extends Standard_Model
 			$expenses[$expense->id] = $expense;
 		}
 		
+		return $expenses;
+	}
+
+	private function sort(&$expenses) {
+		uasort($expenses, function($a, $b) {
+			return strnatcasecmp($a->name, $b->name);
+		});
+
 		return $expenses;
 	}
 }

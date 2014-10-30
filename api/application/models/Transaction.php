@@ -91,6 +91,11 @@ class App_Model_Transaction extends Standard_Model
 		
 		return $table->fetchRange($user->id, $start, $end, $expense_id, $category_id);
 	}
+
+	public function fetchList(App_Model_TransactionFilter $filter) {
+		$table = $this->getDbTable();
+		return $table->fetchList($filter);
+	}
 	
 	public function setExpenseId($value)
 	{

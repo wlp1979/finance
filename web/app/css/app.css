@@ -1,6 +1,10 @@
 body {
 	padding-top: 70px;
 }
+
+input.ng-dirty.ng-invalid {
+  border-color: #a94442;
+}
 .form-signin {
   max-width: 330px;
   padding: 15px;
@@ -31,3 +35,35 @@ body {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
+.transactions .date {
+  width: 105px;
+  text-align: right;
+}
+
+.transactions .check-num {
+  width: 75px;
+  text-align: right;
+}
+
+.transactions .amount {
+  width: 100px;
+  text-align: right;
+}
+
+.transactions .expense {
+  width: 125px;
+}
+
+.transactions .actions {
+  width: 75px;
+}
+
+.transaction-filter .form-group-sm {
+  font-size: 12px;
+}
+
+.transaction-filter input[type="number"] {
+  min-width: 115px;
+}
+

@@ -2,39 +2,48 @@
 
 class TransactionController extends Standard_Controller
 {
-	protected $_ajaxActions = array(
-		'index' => 'html',
-		'edit' => 'json',
-		'edit-value' => 'html',
-		'import-form' => 'html',
-		'import' => 'json',
-		'delete' => 'json',
-		);
+	public function listAction() {
+		$request = $this->getRequest();
+		if (!$request->isGet()) {
+			throw new Exception('unsupported request method');
+		}
 
-	public function indexAction()
-	{
-		$transaction = new App_Model_Transaction();
-		
-		$expense = null;
-		if($this->_request->has('expense_id') && !empty($this->_request->expense_id))
-		{
-			$expenseModel = new App_Model_Expense();
-			if($expenseModel->find($this->_request->expense_id))
-			{
-				$expense = $expenseModel;
+		$filter = new App_Model_TransactionFilter($this->user);
+		if ($request->has('expenseId')) {
+			$expense = new App_Model_Expense();
+			if($expense->find($request->expenseId)) {
+				$filter->setExpense($expense);
 			}
 		}
-		
-		$paginator = $transaction->fetchRange($this->user, $this->_startDate, $this->_endDate, $expense);
-        $paginator->setItemCountPerPage(30);
-        $paginator->setCurrentPageNumber($this->_request->getParam('page', 1));
-        Zend_Paginator::setDefaultScrollingStyle('Sliding');
-        Zend_View_Helper_PaginationControl::setDefaultViewPartial(
-            'partials/pagination.phtml'
-        );
 
-		$transactions = array();
-		$expenseIds = array();
+		if ($request->has('categoryId')) {
+			$category = new App_Model_Category();
+			if($category->find($request->categoryId)) {
+				$filter->setCategory($category);
+			}
+		}
+
+		if ($request->has('startDate') && $request->startDate != '') {
+			$start = new DateTime($request->startDate);
+			$filter->setStartDate($start);
+		}
+
+		if ($request->has('endDate') && $request->endDate != '') {
+			$end = new DateTime($request->endDate);
+			$end->modify('+1 day');
+			$filter->setEndDate($end);
+		}
+
+		$filter->setMinCheckNum($request->getParam('minCheckNum', null));
+		$filter->setMaxCheckNum($request->getParam('maxCheckNum', null));
+		$filter->setDescriptionQuery($request->getParam('descriptionQuery', null));
+		$transactionModel = new App_Model_Transaction();
+		$paginator = $transactionModel->fetchList($filter);
+        $paginator->setItemCountPerPage($request->getParam('pageSize', 20));
+        $paginator->setCurrentPageNumber($request->getParam('page', 1));
+
+        $transactions = array();
+        $expenseIds = array();
 		foreach($paginator as $row)
 		{
 			$transaction = new App_Model_Transaction();
@@ -45,47 +54,57 @@ class TransactionController extends Standard_Controller
 		
 		$expenseModel = new App_Model_Expense();
 		$expenses = $expenseModel->findMany($expenseIds);
-		
-		$form = new App_Form_Transaction();
-		$options = $expenseModel->formOptions($this->user);
-		$form->getElement('expense_id')->addMultiOptions($options);
 
-		$filterForm = new App_Form_TransactionFilter();
-		$filterForm->getElement('filter_expense_id')->addMultiOptions($options);
-		if($expense instanceof App_Model_Expense)
-		{
-			$filterForm->getElement('filter_expense_id')->setValue($expense->id);
+		$dto = new App_Dto_TransactionList();
+		foreach($transactions as $transaction) {
+			$dto->addTransaction(App_Dto_Transaction::fromTransactionModel($transaction, $expenses[$transaction->expense_id]));
 		}
-		
-		$data = array(
-			'date' => strftime('%m/%d/%y'),
-			);
-		if($this->_request->has('last_date'))
-		{
-			$data['date'] = strftime('%m/%d/%y', $this->_request->last_date);
+
+		$this->returnJsonResponse($dto);
+	}
+
+	public function getAction() {
+		if(!$this->_request->isGet()) {
+			throw new Exception('unsupported request method');
 		}
-		
-		if($this->_request->has('last_expense'))
-		{
-			$data['expense_id'] = $this->_request->last_expense;
+
+		$transaction = new App_Model_Transaction();
+		$request = $this->getRequest();
+		if(!$request->has('transactionId') || !$transaction->find($request->transactionId)) {
+			throw new Standard_Controller_NotFoundException();
 		}
-		
-		$form->populate($data);
-		
-		$lastImport = new App_Model_Transaction();
-		if($lastImport->findLastImport())
-		{
-			$this->view->lastImport = $lastImport;
+
+		$dto = App_Dto_Transaction::fromTransactionModel($transaction, $transaction->getExpense());
+
+		$this->returnJsonResponse($dto);
+	}
+
+	public function saveAction() {
+		if(!$this->_request->isPost() && !$this->_request->isPut()) {
+			throw new Exception('unsupported request method');
 		}
-		
-		$sessns = new Zend_Session_Namespace('import');
-		$this->view->import = (count($sessns->import) > 0);
-		$this->view->paginator = $paginator;
-		$this->view->transactions = $transactions;
-		$this->view->expenses = $expenses;
-		$this->view->form = $form;
-		$this->view->expenseOptions = $options;
-		$this->view->filterForm = $filterForm;
+
+		$request = $this->getRequest();
+		if(!$request->has('transactionId') || !$transaction->find($request->transactionId)) {
+			// this is a new transaction
+		}
+
+		//save and return the transaction
+	}
+
+	public function deleteAction() {
+		if(!$this->_request->isDelete()) {
+			throw new Exception('unsupported request method');
+		}
+
+		$request = $this->getRequest();
+		if(!$request->has('transactionId') || !$transaction->find($request->transactionId)) {
+			throw new Standard_Controller_NotFoundException();
+		}
+
+		$transaction->delete();
+		$this->getResponse()->setHttpResponseCode(204);
+		return;
 	}
 	
 	public function editAction()
@@ -250,17 +269,5 @@ class TransactionController extends Standard_Controller
 				unset($sessns->import[$ofxid]);
 			}
 		}
-	}
-	
-	public function deleteAction()
-	{
-		$transaction = new App_Model_Transaction();
-		if($transaction->find($this->_request->transaction_id))
-		{
-			$transaction->delete();
-			$this->addNotification('The transaction has been deleted', 'Success');
-		}
-		
-		return;
 	}
 }

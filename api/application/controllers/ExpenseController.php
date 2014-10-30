@@ -11,6 +11,23 @@ class ExpenseController extends Standard_Controller
 		'recalc-totals' => 'json',
 		);
 
+	public function listAction() {
+		$request = $this->getRequest();
+		if (!$request->isGet()) {
+			throw new Exception('unsupported request method');
+		}
+
+		$expenseModel = new App_Model_Expense();
+		$expenses = $expenseModel->fetchByUser($this->user);
+
+		$dto = new App_Dto_ExpenseList();
+		foreach($expenses as $expense) {
+			$dto->addExpense(App_Dto_Expense::fromExpenseModel($expense));
+		}
+
+		$this->returnJsonResponse($dto);
+	}
+
 	public function editCategoryAction()
 	{
 		$form = new App_Form_Category();

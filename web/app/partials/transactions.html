@@ -1,0 +1,64 @@
+<form class="transaction-filter form-inline" name="transactionFilterForm" role="form" 
+	ng-submit="transactionFilterForm.$valid && transCtrl.refresh(true)" novalidate>
+	<div class="form-group form-group-sm">
+		<label for="startDate">From</label>
+		<input ng-model="transCtrl.transactionFilter.startDate" type="date" name="startDate" class="form-control input-sm" />
+	</div>
+	<div class="form-group form-group-sm">
+		<label for="endDate">To</label>
+		<input ng-model="transCtrl.transactionFilter.endDate" type="date" name="endDate" class="form-control input-sm" />
+	</div>
+	<div class="form-group form-group-sm">
+		<label for="minCheckNum" class="sr-only">From Check #</label>
+		<input ng-model="transCtrl.transactionFilter.minCheckNum" type="number" name="minCheckNum" min="1" max="9999" class="form-control input-sm" 
+			placeholder="From Check #" />
+		<label for="maxCheckNum" class="sr-only">To Check #</label>
+		<input ng-model="transCtrl.transactionFilter.maxCheckNum" type="number" name="maxCheckNum" min="1" max="9999" class="form-control input-sm" 
+			placeholder="To Check #" />
+	</div>
+	<div class="form-group form-group-sm">
+		<label for="descriptionQuery" class="sr-only">Description Search</label>
+		<input ng-model="transCtrl.transactionFilter.descriptionQuery" type="text" name="descriptionQuery" class="form-control input-sm" 
+			placeholder="Description Search" />
+	</div>
+	<div class="form-group form-group-sm">
+		<label for="expenseId" class="sr-only">Expense</label>
+		<select ng-model="transCtrl.transactionFilter.expenseId" class="form-control input-sm" 
+			ng-options="expense.id as expense.name for expense in transCtrl.expenses">
+			<option value>Select an Expense</option>
+		</select>
+	</div>
+	<button type="submit" class="btn btn-default btn-sm" ng-disabled="!transactionFilterForm.$valid">Refresh</button>
+</form>
+<table ng-show="transCtrl.transactions.length > 0" class="transactions table table-striped">
+	<thead>
+		<tr>
+			<th class="date">Date</th>
+			<th class="check-num">Check #</th>
+			<th class="description">Description</th>
+			<th class="amount">Amount</th>
+			<th class="expense">Expense</th>
+			<th class="actions">Action</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="transaction in transCtrl.transactions">
+			<td class="date">{{transaction.date | date}}</td>
+			<td class="check-num">{{transaction.checkNum}}</td>
+			<td class="description">{{transaction.description}}</td>
+			<td class="amount">{{transaction.amount | currency}}</td>
+			<td class="expense">{{transaction.expense.name}}</td>
+			<td class="actions">&nbsp;</td>
+		</tr>
+	</tbody>
+</table>
+<nav>
+  <ul class="pager" ng-show="transCtrl.transactions.length > 0">
+    <li class="previous" ng-class="{ disabled : !transCtrl.hasPreviousPage() }">
+    	<a href ng-click="transCtrl.incrementPage(-1)">Previous</a>
+    </li>
+    <li class="next" ng-class="{ disabled : !transCtrl.hasNextPage() }">
+    	<a href ng-click="transCtrl.incrementPage(1)">Next</a>
+    </li>
+  </ul>
+</nav>

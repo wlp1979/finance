@@ -10,7 +10,12 @@
 		$routeProvider.when('/summary', {
 			templateUrl: 'partials/balance-summary.html',
 			controller: 'BalanceSummaryCtrl',
-			controllerAs: 'summary'
+			controllerAs: 'summaryCtrl'
+		}).
+		when('/transactions', {
+			templateUrl: 'partials/transactions.html',
+			controller: 'TransactionListCtrl',
+			controllerAs: 'transCtrl'
 		}).
 		when('/login', {
 			templateUrl: 'partials/login.html',

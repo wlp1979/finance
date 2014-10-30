@@ -88,6 +88,48 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 		return Zend_Paginator::factory($select);
 	}
 	
+	public function fetchList(App_Model_TransactionFilter $filter)
+	{
+		$select = $this->select(Zend_Db_Table_Abstract::SELECT_WITH_FROM_PART);
+		$select->where('user_id = ?', $filter->getUser()->id);
+
+		if ($filter->getStartDate() instanceof DateTime) {
+			$select->where('date >= ?', $filter->getStartDate()->getTimestamp());
+		}
+
+		if ($filter->getEndDate() instanceof DateTime) {
+			$select->where('date < ?', $filter->getEndDate()->getTimestamp());
+		}
+
+		if($filter->getExpense() instanceof App_Model_Expense) {
+			$select->where('expense_id = ?', $filter->getExpense()->id);
+		}
+
+		if($filter->getCategory() instanceof App_Model_Category)
+		{
+			$select->join('expenses', 'transaction.expense_id = expenses.id', array());
+			$select->where('expenses.category_id = ?', $filter->getCategory()->id);
+		}
+
+		if($filter->getMinCheckNum() !== null) {
+			$select->where('check_num >= ?', $filter->getMinCheckNum());
+			$select->where('check_num IS NOT NULL');
+		}
+
+		if($filter->getMaxCheckNum() !== null) {
+			$select->where('check_num <= ?', $filter->getMaxCheckNum());
+		}
+
+		if($filter->getDescriptionQuery() !== null) {
+			$select->where('description LIKE ?', '%' . $filter->getDescriptionQuery() . '%');
+		}
+
+		$select->order('date DESC');
+		$select->order('description');
+
+		return Zend_Paginator::factory($select);
+	}
+
 	public function fetchExistingByOfxid($user_id, $ofxid)
 	{
 		$select = $this->select();

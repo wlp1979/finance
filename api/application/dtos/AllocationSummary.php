@@ -1,9 +1,9 @@
 <?php
 
 class App_Dto_AllocationSummary extends App_Dto_Abstract {
-	public $total;
-
-	public $expenses = array();
+	
+	protected $total;
+	protected $expenses = array();
 
 	public function __construct(App_Dto_AllocationSummaryRecord $total) {
 		$this->total = $total;

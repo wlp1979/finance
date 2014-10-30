@@ -1,7 +1,7 @@
 'use strict';
 
 (function(){
-	var services = angular.module('financeDirectorServices', ['ngCookies']);
+	var services = angular.module('financeDirectorServices', ['ngCookies', 'ngResource']);
 
 	services.factory('AuthService', ['$http', '$cookieStore', function($http, $cookieStore) {
 		var cookieName = 'AuthService.authenticated';
@@ -36,5 +36,25 @@
 				$cookieStore.put(cookieName, authenticated);
 			}
 		};
+	}]);
+
+	services.factory('Transaction', ['$resource', function($resource) {
+		return $resource('/api/transaction/:action/',{},{
+			query: { method: 'GET', params: { action: 'list' }, isArray: true },
+			get: { method: 'GET', params: { action: 'get' } },
+			save: { method: 'POST', params: { action: 'save' } },
+			delete: { method: 'DELETE', params: { action: 'delete' } },
+			remove: { method: 'DELETE', params: { action: 'delete' } }
+		});
+	}]);
+
+	services.factory('Expense', ['$resource', function($resource) {
+		return $resource('/api/expense/:action/',{},{
+			query: { method: 'GET', params: { action: 'list' }, isArray: true },
+			get: { method: 'GET', params: { action: 'get' } },
+			save: { method: 'POST', params: { action: 'save' } },
+			delete: { method: 'DELETE', params: { action: 'delete' } },
+			remove: { method: 'DELETE', params: { action: 'delete' } }
+		});
 	}]);
 })();
