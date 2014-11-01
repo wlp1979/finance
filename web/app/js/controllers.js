@@ -29,7 +29,8 @@
 			if(startOver) {
 				this.transactionFilter.page = 1;
 			}
-			self.transactions = Transaction.query(this.transactionFilter);
+
+			this.transactions = Transaction.query(this.transactionFilter);
 		};
 
 		this.incrementPage = function(delta) {
@@ -57,18 +58,12 @@
 			transaction.$save();
 		};
 
-		// this.addTransaction = function() {
-		// 	this.inserted = new Transaction({
-		// 		id: null,
-		// 		date: $filter('date')(new Date(), 'yyyy-MM-dd'),
-		// 		checkNum: null,
-		// 		description: null,
-		// 		amount: 0,
-		// 		expenseId : this.expenses[0].id
-		// 	});
-
-		// 	this.transactions.push(this.inserted);
-		// }
+		this.deleteTransaction = function(index) {
+			var transaction = this.transactions[index];
+			transaction.$delete({id:transaction.id}, function() {
+				self.transactions.splice(index, 1);
+			});
+		}
 
 		this.showExpense = function(transaction) {
 			if(transaction.expenseId && this.expenses.length) {

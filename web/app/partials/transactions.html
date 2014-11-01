@@ -29,8 +29,8 @@
 		</select>
 	</div>
 	<button type="submit" class="btn btn-default btn-sm" ng-disabled="!transactionFilterForm.$valid">Refresh</button>
-	<!-- <button class="btn btn-default btn-sm" ng-click="transCtrl.addTransaction()">Add row</button> -->
 </form>
+
 <table class="transactions table table-striped table-responsive table-hover table-bordered">
 	<thead>
 		<tr>
@@ -84,6 +84,7 @@
 		</tr>
 	</tbody>
 </table>
+
 <nav>
   <ul class="pager" ng-show="transCtrl.transactions.length > 0">
     <li class="previous" ng-class="{ disabled : !transCtrl.hasPreviousPage() }">

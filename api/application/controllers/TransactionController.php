@@ -121,8 +121,9 @@ class TransactionController extends Standard_Controller
 			throw new Exception('unsupported request method');
 		}
 
+		$transaction = new App_Model_Transaction();
 		$request = $this->getRequest();
-		if(!$request->has('transactionId') || !$transaction->find($request->transactionId)) {
+		if(!$request->has('id') || !$transaction->find($request->id)) {
 			throw new Standard_Controller_NotFoundException();
 		}
 
