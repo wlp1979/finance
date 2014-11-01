@@ -42,24 +42,14 @@ class TransactionController extends Standard_Controller
         $paginator->setItemCountPerPage($request->getParam('pageSize', 20));
         $paginator->setCurrentPageNumber($request->getParam('page', 1));
 
-        $transactions = array();
-        $expenseIds = array();
+		$dto = new App_Dto_TransactionList();
 		foreach($paginator as $row)
 		{
 			$transaction = new App_Model_Transaction();
 			$transaction->loadFromDb($row);
-			$transactions[$row->id] = $transaction;
-			$expenseIds[$row->expense_id] = $row->expense_id; 
+			$dto->addTransaction(App_Dto_Transaction::fromTransactionModel($transaction));
 		}
 		
-		$expenseModel = new App_Model_Expense();
-		$expenses = $expenseModel->findMany($expenseIds);
-
-		$dto = new App_Dto_TransactionList();
-		foreach($transactions as $transaction) {
-			$dto->addTransaction(App_Dto_Transaction::fromTransactionModel($transaction, $expenses[$transaction->expense_id]));
-		}
-
 		$this->returnJsonResponse($dto);
 	}
 
@@ -84,12 +74,46 @@ class TransactionController extends Standard_Controller
 			throw new Exception('unsupported request method');
 		}
 
-		$request = $this->getRequest();
-		if(!$request->has('transactionId') || !$transaction->find($request->transactionId)) {
-			// this is a new transaction
+		$postData = $this->getPostData();
+		if(!isset($postData->date) || empty($postData->date)) {
+			//bad request throw an exception
 		}
 
-		//save and return the transaction
+		if(!isset($postData->amount) || empty($postData->amount)) {
+			//bad request throw an exception
+		}
+
+		if(!isset($postData->description) || empty($postData->description)) {
+			//bad request throw an exception
+		}
+
+		$expense = new App_Model_Expense();
+		if(!isset($postData->expenseId) || empty($postData->expenseId) || !$expense->find($postData->expenseId)) {
+			//bad request throw an exception
+		}
+
+		$transaction = new App_Model_Transaction();
+		if(isset($postData->id) && !empty($postData->id)) {
+			$transaction->find($postData->id);
+		}
+
+
+		$transaction->user_id = $this->user->id;
+		$transaction->expense_id = $expense->id;
+		$transaction->date = $postData->date;
+
+		// Currently transactions are stored with the inverse sign
+		$transaction->amount = -$postData->amount;
+
+		$transaction->description = $postData->description;
+
+		if(isset($postData->checkNum) && !empty($postData->checkNum)) {
+			$transaction->check_num = $postData->checkNum;
+		}
+		
+		$transaction->save();
+
+		$this->returnJsonResponse(App_Dto_Transaction::fromTransactionModel($transaction));
 	}
 
 	public function deleteAction() {

@@ -7,35 +7,35 @@ class App_Dto_Transaction extends App_Dto_Abstract {
 	protected $checkNum;
 	protected $description;
 	protected $amount;
-	protected $expense;
+	protected $expenseId;
 
-	public function __construct($id, $date, $checkNum, $description, $amount, App_Dto_Expense $expense) {
+	public function __construct($id, $date, $checkNum, $description, $amount, $expenseId) {
 		$this->id = $id;
 		$this->date = $this->formatDate($date);
-		$this->checkNum = (empty($checkNum)) ? null : $checkNum;
+		$this->checkNum = (empty($checkNum)) ? null : intval($checkNum);
 		$this->description = $description;
 		$this->amount = $amount;
-		$this->expense = $expense;
+		$this->expenseId = $expenseId;
 	}
 
-	public static function fromTransactionModel(App_Model_Transaction $transaction, App_Model_Expense $expense) {
+	public static function fromTransactionModel(App_Model_Transaction $transaction) {
 		return new self(
 			$transaction->id,
 			$transaction->date,
 			$transaction->check_num,
 			$transaction->description,
 			-$transaction->amount,
-			App_Dto_Expense::fromExpenseModel($expense)
+			$transaction->expense_id
 		);
 	}
 
 	private function formatDate($date) {
-		if(is_string($date) && is_numeric($date)) {
+		if((is_string($date) && is_numeric($date)) || is_int($date)) {
 			$date = "@{$date}";
 		}
 		try {
 			$dateTime = new DateTime($date);
-			return $dateTime->format(DateTime::ISO8601);
+			return $dateTime->format('Y-m-d');
 		} catch (Exception $e) {
 			error_log($e);
 			return $date;

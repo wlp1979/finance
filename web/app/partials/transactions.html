@@ -29,8 +29,9 @@
 		</select>
 	</div>
 	<button type="submit" class="btn btn-default btn-sm" ng-disabled="!transactionFilterForm.$valid">Refresh</button>
+	<!-- <button class="btn btn-default btn-sm" ng-click="transCtrl.addTransaction()">Add row</button> -->
 </form>
-<table ng-show="transCtrl.transactions.length > 0" class="transactions table table-striped">
+<table class="transactions table table-striped table-responsive table-hover table-bordered">
 	<thead>
 		<tr>
 			<th class="date">Date</th>
@@ -43,12 +44,43 @@
 	</thead>
 	<tbody>
 		<tr ng-repeat="transaction in transCtrl.transactions">
-			<td class="date">{{transaction.date | date}}</td>
-			<td class="check-num">{{transaction.checkNum}}</td>
-			<td class="description">{{transaction.description}}</td>
-			<td class="amount">{{transaction.amount | currency}}</td>
-			<td class="expense">{{transaction.expense.name}}</td>
-			<td class="actions">&nbsp;</td>
+			<td class="date">
+				<span editable-date="transaction.date" e-name="date" e-form="rowform" e-required>
+					{{transaction.date | date }}
+				</span>
+			</td>
+			<td class="check-num">
+				<span editable-number="transaction.checkNum" e-name="checkNum" e-form="rowform" e-step="1">
+					{{transaction.checkNum}}
+				</span>
+			</td>
+			<td class="description">
+				<span editable-text="transaction.description" e-name="description" e-form="rowform" e-required>
+					{{transaction.description}}
+				</span>
+			</td>
+			<td class="amount">
+				<span editable-number="transaction.amount" e-name="amount" e-form="rowform" e-step="0.01" e-required>
+					{{transaction.amount | currency}}
+				</span>
+			</td>
+			<td class="expense">
+				<span editable-select="transaction.expenseId" e-name="expenseId" e-form="rowform" 
+					e-ng-options="expense.id as expense.name for expense in transCtrl.expenses" e-required>
+					{{transCtrl.showExpense(transaction)}}
+				</span>
+			</td>
+			<td class="actions">
+				<form editable-form name="rowform" onbeforesave="transCtrl.saveTransaction($data, $index)" ng-show="rowform.$visible" 
+					class="form-buttons form-inline">
+					<button type="submit" ng-disabled="rowform.$waiting" class="btn btn-primary btn-sm">save</button>
+					<button type="button" ng-disabled="rowform.$waiting" ng-click="rowform.$cancel()" class="btn btn-default btn-sm">cancel</button>
+				</form>
+				<div class="buttons" ng-show="!rowform.$visible">
+					<button class="btn btn-primary btn-xs" ng-click="rowform.$show()">edit</button>
+					<button class="btn btn-danger btn-xs" ng-click="transCtrl.deleteTransaction($index)">del</button>
+				</div> 
+			</td>
 		</tr>
 	</tbody>
 </table>

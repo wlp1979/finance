@@ -8,7 +8,6 @@ class App_Form_Transaction extends Standard_Form
 
 		$this->addElement('text', 'date', array(
 			'label' => 'Date',
-			'class' => 'datepicker',
 			'required' => true,
 			'filters' => array('StringTrim'),
 			));
