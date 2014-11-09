@@ -1,8 +1,7 @@
 'use strict';
-// file upload https://github.com/danialfarid/angular-file-upload
 
 (function() {
-	var controllers = angular.module('financeDirectorControllers', ['xeditable']);
+	var controllers = angular.module('financeDirectorControllers', ['xeditable', 'angularFileUpload']);
 
 	controllers.controller('BalanceSummaryCtrl', ['$http', function($http) {
 		var self = this;
@@ -14,7 +13,7 @@
 		});
 	}]);
 
-	controllers.controller('TransactionListCtrl', ['Transaction', 'Expense', '$filter', function(Transaction, Expense, $filter) {
+	controllers.controller('TransactionListCtrl', ['Transaction', 'Expense', '$filter', '$upload', function(Transaction, Expense, $filter, $upload) {
 		var self = this;
 		this.transactionFilter = {
 			page: 1,
@@ -24,6 +23,8 @@
 		this.transactions = [];
 
 		this.expenses = Expense.query();
+
+		this.importing = [];
 
 		this.refresh = function(startOver) {
 			if(startOver) {
@@ -74,7 +75,23 @@
 			}
 		};
 
+		this.uploadTransactions = function($files) {
+			$upload.upload({
+				url: '/api/transaction/upload',
+				file: $files[0]
+			}).success(function (data) {
+				self.importing = data;
+				// start importing
+			}).error(function (response) {
+				console.log(response);
+			});
+		}
+
 		this.refresh(true);
+
+		if (this.importing.length > 0) {
+			// start importing
+		}
 	}]);
 
 	controllers.controller('LoginCtrl', ['AuthService', '$location', function(AuthService, $location) {

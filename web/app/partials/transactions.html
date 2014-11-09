@@ -30,6 +30,8 @@
 	</div>
 	<button type="submit" class="btn btn-default btn-sm" ng-disabled="!transactionFilterForm.$valid">Refresh</button>
 </form>
+<button class="btn btn-default btn-sm" ng-file-select="transCtrl.uploadTransactions($files)" >Import Transactions</button>
+
 
 <table class="transactions table table-striped table-responsive table-hover table-bordered">
 	<thead>

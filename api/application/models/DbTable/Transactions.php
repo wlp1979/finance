@@ -151,10 +151,12 @@ class App_Model_DbTable_Transactions extends Standard_Db_Table
 		$select->where('date >= ?', strtotime('-4 days', $date));
 		$select->where('date <= ?', strtotime('+4 days', $date));
 		
-		if(empty($check_num))
-			$check_num = 0;
+		if(empty($check_num)) {
+			$select->where('check_num IS NULL');
+		} else {
+			$select->where('check_num = ?', $check_num);
+		}
 			
-		$select->where('check_num = ?', $check_num);
 		$select->where('ofxid is NULL OR ofxid = ""');
 		
 		return $this->fetchRow($select);

@@ -8,14 +8,21 @@ class App_Dto_Transaction extends App_Dto_Abstract {
 	protected $description;
 	protected $amount;
 	protected $expenseId;
+	protected $ofxId;
+	protected $match;
 
-	public function __construct($id, $date, $checkNum, $description, $amount, $expenseId) {
+	public function __construct($id, $date, $checkNum, $description, $amount, $expenseId, $ofxId) {
 		$this->id = $id;
 		$this->date = $this->formatDate($date);
 		$this->checkNum = (empty($checkNum)) ? null : intval($checkNum);
 		$this->description = $description;
 		$this->amount = $amount;
 		$this->expenseId = $expenseId;
+		$this->ofxId = $ofxId;
+	}
+
+	public function setMatch(App_Dto_Transaction $match) {
+		$this->match = $match;
 	}
 
 	public static function fromTransactionModel(App_Model_Transaction $transaction) {
@@ -25,7 +32,8 @@ class App_Dto_Transaction extends App_Dto_Abstract {
 			$transaction->check_num,
 			$transaction->description,
 			-$transaction->amount,
-			$transaction->expense_id
+			$transaction->expense_id,
+			$transaction->ofxId
 		);
 	}
 

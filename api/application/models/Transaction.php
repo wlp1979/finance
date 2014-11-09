@@ -99,14 +99,14 @@ class App_Model_Transaction extends Standard_Model
 	
 	public function setExpenseId($value)
 	{
-		$this->_oldExpenseId = $this->_data['expense_id'];
+		$this->_oldExpenseId = @$this->_data['expense_id'];
 		$this->_data['expense_id'] = $value;
 	}
 	
 	public function setDate($value)
 	{
 		$value = $this->filterTimestamp($value);
-		$this->_oldDate = $this->_data['date'];
+		$this->_oldDate = @$this->_data['date'];
 		$this->_data['date'] = $value;
 	}
 	
@@ -153,7 +153,7 @@ class App_Model_Transaction extends Standard_Model
 			$transaction->user_id = $user->id;
 			$transaction->date = $entry->date;
 			$transaction->amount = $entry->amount * -1; //reverse the sign
-			$transaction->check_num = $entry->check;
+			$transaction->check_num = ($entry->check > 0) ? $entry->check : null;
 			$transaction->description = $entry->name . ' ' . $entry->memo;
 			$transaction->ofxid = $ofxid;
 			$transactions[$ofxid] = $transaction;

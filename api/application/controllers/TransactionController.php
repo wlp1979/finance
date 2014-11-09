@@ -132,88 +132,8 @@ class TransactionController extends Standard_Controller
 		return;
 	}
 	
-	public function editAction()
-	{
-		$form = new App_Form_Transaction();
-		$transaction = new App_Model_Transaction();
-		$expense = new App_Model_Expense();
-		$options = $expense->formOptions($this->user);
-		$form->getElement('expense_id')->addMultiOptions($options);
-		
-		if($this->_request->has('transaction_id') && $transaction->find($this->_request->transaction_id))
-		{
-			$data = $transaction->toArray();
-			$data['date'] = $transaction->displayDate();
-			$form->populate($data);
-		}
-		
-		if($this->_request->isPost())
-		{
-			$params = $this->_request->getPost();
-			if($form->isValid($params))
-			{
-				$transaction->user_id = $this->user->id;
-				$transaction->expense_id = $form->getValue('expense_id');
-				$transaction->date = $form->getValue('date');
-				$transaction->amount = $form->getValue('amount');
-				$transaction->description = $form->getValue('description');
-				$transaction->check_num = $form->getValue('check_num');
-				
-				$transaction->save();
-				
-				$this->view->last_date = $transaction->date;
-				$this->view->last_expense = $transaction->expense_id;
-				$this->addNotification('Transaction saved', 'Success');
-				return;
-			}
-		}
-		
-		$this->setForm($form);
-	}
-	
-	public function editValueAction()
-	{
-		$transaction = new App_Model_Transaction();
-		if($this->_request->has('transaction_id') && $transaction->find($this->_request->transaction_id))
-		{
-			if($this->_request->has('column') && $this->_request->has('value'))
-			{
-				$column = $this->_request->column;
-				$value = $this->_request->value;
-				
-				$transaction->$column = $value;
-				$transaction->save();
-				
-				switch($column)
-				{
-					case 'date':
-					$this->view->value = $transaction->displayDate();
-					break;
-					
-					case 'amount':
-					$this->view->value = $transaction->displayCurrency();
-					break;
-					
-					case 'expense_id':
-					$expense = $transaction->getExpense();
-					$this->view->value = $expense->name;
-					break;
-					
-					case 'check_num':
-					$this->view->value = ($transaction->check_num == '') ? '&nbsp;' : $transaction->check_num;
-					break;
-					
-					default:
-					$this->view->value = $value;
-				}
-			}
-		}
-	}
-	
 	public function uploadAction()
 	{
-		$this->_helper->layout->disableLayout();
-        $this->_helper->viewRenderer->setNoRender(true);
 		$transaction = new App_Model_Transaction();
 		$form = new App_Form_File();
 		if($this->_request->isPost())
@@ -226,15 +146,17 @@ class TransactionController extends Standard_Controller
 				if(!empty($file))
 				{
 					$transactions = $transaction->parseOfx($file);
-					if(!empty($transactions))
-					{
-						$sessns = new Zend_Session_Namespace('import');
-						$sessns->import = $transactions;
-						echo "import";
-						return;
+					$dto = new App_Dto_TransactionList();
+					foreach($transactions as $transaction) {
+						$transDto = App_Dto_Transaction::fromTransactionModel($transaction);
+						$match = $transaction->fetchPossibleMatch();
+						if($match && $match instanceof App_Model_Transaction) {
+							$transDto->setMatch(App_Dto_Transaction::fromTransactionModel($match));
+						}
+						$dto->addTransaction($transDto);
 					}
+					$this->returnJsonResponse($dto);
 				}
-				echo "empty";
 			}
 		}
 	}
